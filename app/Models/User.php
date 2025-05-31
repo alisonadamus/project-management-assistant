@@ -1,0 +1,147 @@
+<?php
+
+namespace Alison\ProjectManagementAssistant\Models;
+
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Jetstream\HasProfilePhoto;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+
+class User extends Authenticatable
+{
+    use HasApiTokens;
+
+    /** @use HasFactory<UserFactory> */
+    use HasUlids;
+    use HasFactory;
+    use HasProfilePhoto;
+    use Notifiable;
+    use TwoFactorAuthenticatable;
+    use HasRoles;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'google_id',
+        'first_name',
+        'last_name',
+        'middle_name',
+        'description',
+        'avatar',
+        'course_number',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'two_factor_recovery_codes',
+        'two_factor_secret',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'profile_photo_url',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+
+    public function supervisors(): HasMany
+    {
+        return $this->hasMany(Supervisor::class, 'supervisors');
+    }
+
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'assigned_to');
+    }
+
+    public function offers(): HasMany
+    {
+        return $this->hasMany(Offer::class, 'student_id');
+    }
+
+    public function scopeByRole(Builder $query, string $role): Builder
+    {
+        return $query->where('role', $role);
+    }
+
+    public function scopeByName(Builder $query, string $name): Builder
+    {
+        return $query->where('name', 'like', '%' . $name . '%');
+    }
+
+    public function scopeByCourse(Builder $query, int $course): Builder
+    {
+        return $query->where('course_number', $course);
+    }
+
+    public function scopeVerified(Builder $query): Builder
+    {
+        return $query->whereNotNull('email_verified_at');
+    }
+
+    public function scopeByEmailDomain(Builder $query, string $domain): Builder
+    {
+        return $query->where('email', 'like', '%' . $domain);
+    }
+
+    public function scopeIsSupervisor(Builder $query): Builder
+    {
+        return $query->whereHas('supervisors');
+    }
+
+    public function scopeHasOffers(Builder $query): Builder
+    {
+        return $query->whereHas('offers');
+    }
+
+    public function scopeAlphabetically(Builder $query): Builder
+    {
+        return $query->orderBy('name');
+    }
+
+    public function scopeRecentFirst(Builder $query): Builder
+    {
+        return $query->orderBy('created_at', 'desc');
+    }
+
+    public function scopeLimitUsers(Builder $query, int $limit): Builder
+    {
+        return $query->limit($limit);
+    }
+}

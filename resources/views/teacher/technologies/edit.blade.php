@@ -1,0 +1,99 @@
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                {{ __('Редагування технології') }}
+            </h2>
+            <a href="{{ route('technologies.show', $technology) }}" class="inline-flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 border border-transparent rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest hover:bg-gray-300 dark:hover:bg-gray-600 focus:bg-gray-300 dark:focus:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Назад
+            </a>
+        </div>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
+                <form action="{{ route('teacher.technologies.update', $technology) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Назва технології -->
+                        <div>
+                            <x-label for="name" value="{{ __('Назва технології') }}" />
+                            <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name', $technology->name)" required autofocus />
+                            @error('name')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Slug -->
+                        <div>
+                            <x-label for="slug" value="{{ __('Slug') }}" />
+                            <x-input id="slug" class="block mt-1 w-full" type="text" name="slug" :value="old('slug', $technology->slug)" required />
+                            @error('slug')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Посилання -->
+                        <div>
+                            <x-label for="link" value="{{ __('Посилання на документацію') }}" />
+                            <x-input id="link" class="block mt-1 w-full" type="url" name="link" :value="old('link', $technology->link)" placeholder="https://..." />
+                            @error('link')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Зображення -->
+                        <div>
+                            <x-label for="image" value="{{ __('Зображення') }}" />
+                            @if($technology->image)
+                                <div class="mt-1 mb-2">
+                                    <img src="{{ $technology->image }}" alt="{{ $technology->name }}" class="h-32 w-auto object-cover rounded-md">
+                                </div>
+                            @endif
+                            <x-file-input id="image" name="image" />
+                            @error('image')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Опис -->
+                        <div class="md:col-span-2">
+                            <x-label for="description" value="{{ __('Опис') }}" />
+                            <x-textarea id="description" name="description" rows="4" class="block mt-1 w-full">{{ old('description', $technology->description) }}</x-textarea>
+                            @error('description')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end mt-6">
+                        <x-button>
+                            {{ __('Оновити технологію') }}
+                        </x-button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Автоматичне генерування slug з назви, якщо поле slug порожнє
+        document.getElementById('name').addEventListener('input', function() {
+            const slugField = document.getElementById('slug');
+            if (slugField.value === '') {
+                const name = this.value;
+                const slug = name.toLowerCase()
+                    .replace(/[^\w\s-]/g, '')
+                    .replace(/[\s_-]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                slugField.value = slug;
+            }
+        });
+    </script>
+</x-app-layout>

@@ -1,0 +1,12 @@
+<?php
+
+namespace Alison\ProjectManagementAssistant\Filament\Resources\PermissionResource\Pages;
+
+use Alison\ProjectManagementAssistant\Filament\Resources\PermissionResource;
+use Filament\Actions;
+use Filament\Resources\Pages\CreateRecord;
+
+class CreatePermission extends CreateRecord
+{
+    protected static string $resource = PermissionResource::class;
+}

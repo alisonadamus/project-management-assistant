@@ -1,0 +1,633 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+    display: none;
+}
+
+/* Змінні для кольорових тем */
+:root {
+    /* Синя тема (за замовчуванням) */
+    --color-primary-50: 238, 242, 255;  /* indigo-50 */
+    --color-primary-100: 224, 231, 255; /* indigo-100 */
+    --color-primary-200: 199, 210, 254; /* indigo-200 */
+    --color-primary-300: 165, 180, 252; /* indigo-300 */
+    --color-primary-400: 129, 140, 248; /* indigo-400 */
+    --color-primary-500: 99, 102, 241;  /* indigo-500 */
+    --color-primary-600: 79, 70, 229;   /* indigo-600 */
+    --color-primary-700: 67, 56, 202;   /* indigo-700 */
+    --color-primary-800: 55, 48, 163;   /* indigo-800 */
+    --color-primary-900: 49, 46, 129;   /* indigo-900 */
+    --color-primary-950: 30, 27, 75;    /* indigo-950 */
+
+    /* Базові градієнтні змінні */
+    --gradient-primary-start: 79, 70, 229;  /* indigo-600 */
+    --gradient-primary-middle: 99, 102, 241; /* indigo-500 */
+    --gradient-primary-end: 129, 140, 248; /* indigo-400 */
+
+    /* Додаткові кольори для багатокольорових градієнтів */
+    --color-blue: 59, 130, 246;      /* blue-500 */
+    --color-cyan: 6, 182, 212;       /* cyan-500 */
+    --color-teal: 20, 184, 166;      /* teal-500 */
+    --color-emerald: 16, 185, 129;   /* emerald-500 */
+    --color-yellow: 234, 179, 8;     /* yellow-500 */
+    --color-amber: 245, 158, 11;     /* amber-500 */
+    --color-orange: 249, 115, 22;    /* orange-500 */
+    --color-rose: 244, 63, 94;       /* rose-500 */
+    --color-pink: 236, 72, 153;      /* pink-500 */
+    --color-fuchsia: 217, 70, 239;   /* fuchsia-500 */
+
+    /* Градієнти для різних елементів інтерфейсу */
+    --gradient-button-start: var(--gradient-primary-start);
+    --gradient-button-middle: var(--gradient-primary-middle);
+    --gradient-button-end: var(--gradient-primary-end);
+
+    --gradient-card-start: var(--gradient-primary-start);
+    --gradient-card-middle: var(--gradient-primary-middle);
+    --gradient-card-end: var(--gradient-primary-end);
+
+    --gradient-badge-start: var(--gradient-primary-start);
+    --gradient-badge-middle: var(--gradient-primary-middle);
+    --gradient-badge-end: var(--gradient-primary-end);
+
+    --gradient-nav-start: var(--gradient-primary-start);
+    --gradient-nav-middle: var(--gradient-primary-middle);
+    --gradient-nav-end: var(--gradient-primary-end);
+
+    --gradient-header-start: var(--gradient-primary-start);
+    --gradient-header-middle: var(--gradient-primary-middle);
+    --gradient-header-end: var(--gradient-primary-end);
+}
+
+/* Жовто-зелена тема */
+.theme-yellow-green {
+    --color-primary-50: 254, 252, 232;  /* yellow-50 */
+    --color-primary-100: 254, 249, 195; /* yellow-100 */
+    --color-primary-200: 254, 240, 138; /* yellow-200 */
+    --color-primary-300: 253, 224, 71;  /* yellow-300 */
+    --color-primary-400: 234, 179, 8;   /* yellow-400 */
+    --color-primary-500: 202, 138, 4;   /* yellow-500 */
+    --color-primary-600: 161, 98, 7;    /* yellow-600 */
+    --color-primary-700: 133, 77, 14;   /* yellow-700 */
+    --color-primary-800: 113, 63, 18;   /* yellow-800 */
+    --color-primary-900: 92, 48, 14;    /* yellow-900 */
+    --color-primary-950: 51, 26, 8;     /* yellow-950 */
+
+    /* Градієнти для жовто-зеленої теми */
+    --gradient-primary-start: 234, 179, 8;   /* yellow-400 */
+    --gradient-primary-middle: 163, 230, 53; /* lime-400 */
+    --gradient-primary-end: 74, 222, 128;    /* green-400 */
+
+    /* Градієнти для різних елементів */
+    --gradient-button-start: 234, 179, 8;    /* yellow-400 */
+    --gradient-button-middle: 163, 230, 53;  /* lime-400 */
+    --gradient-button-end: 74, 222, 128;     /* green-400 */
+
+    --gradient-card-start: 234, 179, 8;      /* yellow-400 */
+    --gradient-card-middle: 163, 230, 53;    /* lime-400 */
+    --gradient-card-end: 74, 222, 128;       /* green-400 */
+
+    --gradient-badge-start: 234, 179, 8;     /* yellow-400 */
+    --gradient-badge-middle: 163, 230, 53;   /* lime-400 */
+    --gradient-badge-end: 74, 222, 128;      /* green-400 */
+
+    --gradient-nav-start: 234, 179, 8;       /* yellow-400 */
+    --gradient-nav-middle: 163, 230, 53;     /* lime-400 */
+    --gradient-nav-end: 74, 222, 128;        /* green-400 */
+
+    --gradient-header-start: 234, 179, 8;    /* yellow-400 */
+    --gradient-header-middle: 163, 230, 53;  /* lime-400 */
+    --gradient-header-end: 74, 222, 128;     /* green-400 */
+}
+
+/* Блакитно-рожева тема */
+.theme-blue-pink {
+    --color-primary-50: 240, 249, 255;  /* sky-50 */
+    --color-primary-100: 224, 242, 254; /* sky-100 */
+    --color-primary-200: 186, 230, 253; /* sky-200 */
+    --color-primary-300: 125, 211, 252; /* sky-300 */
+    --color-primary-400: 56, 189, 248;  /* sky-400 */
+    --color-primary-500: 14, 165, 233;  /* sky-500 */
+    --color-primary-600: 2, 132, 199;   /* sky-600 */
+    --color-primary-700: 3, 105, 161;   /* sky-700 */
+    --color-primary-800: 7, 89, 133;    /* sky-800 */
+    --color-primary-900: 12, 74, 110;   /* sky-900 */
+    --color-primary-950: 8, 47, 73;     /* sky-950 */
+
+    /* Градієнти для блакитно-рожевої теми */
+    --gradient-primary-start: 56, 189, 248;   /* sky-400 */
+    --gradient-primary-middle: 186, 230, 253; /* sky-200 */
+    --gradient-primary-end: 249, 168, 212;    /* pink-300 */
+
+    /* Градієнти для різних елементів */
+    --gradient-button-start: 56, 189, 248;    /* sky-400 */
+    --gradient-button-middle: 186, 230, 253;  /* sky-200 */
+    --gradient-button-end: 249, 168, 212;     /* pink-300 */
+
+    --gradient-card-start: 56, 189, 248;      /* sky-400 */
+    --gradient-card-middle: 186, 230, 253;    /* sky-200 */
+    --gradient-card-end: 249, 168, 212;       /* pink-300 */
+
+    --gradient-badge-start: 56, 189, 248;     /* sky-400 */
+    --gradient-badge-middle: 186, 230, 253;   /* sky-200 */
+    --gradient-badge-end: 249, 168, 212;      /* pink-300 */
+
+    --gradient-nav-start: 56, 189, 248;       /* sky-400 */
+    --gradient-nav-middle: 186, 230, 253;     /* sky-200 */
+    --gradient-nav-end: 249, 168, 212;        /* pink-300 */
+
+    --gradient-header-start: 56, 189, 248;    /* sky-400 */
+    --gradient-header-middle: 186, 230, 253;  /* sky-200 */
+    --gradient-header-end: 249, 168, 212;     /* pink-300 */
+}
+
+/* Зелено-фіолетова тема */
+.theme-green-purple {
+    --color-primary-50: 240, 253, 244;  /* green-50 */
+    --color-primary-100: 220, 252, 231; /* green-100 */
+    --color-primary-200: 187, 247, 208; /* green-200 */
+    --color-primary-300: 134, 239, 172; /* green-300 */
+    --color-primary-400: 74, 222, 128;  /* green-400 */
+    --color-primary-500: 34, 197, 94;   /* green-500 */
+    --color-primary-600: 22, 163, 74;   /* green-600 */
+    --color-primary-700: 21, 128, 61;   /* green-700 */
+    --color-primary-800: 22, 101, 52;   /* green-800 */
+    --color-primary-900: 20, 83, 45;    /* green-900 */
+    --color-primary-950: 5, 46, 22;     /* green-950 */
+
+    /* Градієнти для зелено-фіолетової теми */
+    --gradient-primary-start: 34, 197, 94;    /* green-500 */
+    --gradient-primary-middle: 107, 33, 168;  /* purple-800 */
+    --gradient-primary-end: 192, 132, 252;    /* purple-400 */
+
+    /* Градієнти для різних елементів */
+    --gradient-button-start: 34, 197, 94;     /* green-500 */
+    --gradient-button-middle: 107, 33, 168;   /* purple-800 */
+    --gradient-button-end: 192, 132, 252;     /* purple-400 */
+
+    --gradient-card-start: 34, 197, 94;       /* green-500 */
+    --gradient-card-middle: 107, 33, 168;     /* purple-800 */
+    --gradient-card-end: 192, 132, 252;       /* purple-400 */
+
+    --gradient-badge-start: 34, 197, 94;      /* green-500 */
+    --gradient-badge-middle: 107, 33, 168;    /* purple-800 */
+    --gradient-badge-end: 192, 132, 252;      /* purple-400 */
+
+    --gradient-nav-start: 34, 197, 94;        /* green-500 */
+    --gradient-nav-middle: 107, 33, 168;      /* purple-800 */
+    --gradient-nav-end: 192, 132, 252;        /* purple-400 */
+
+    --gradient-header-start: 34, 197, 94;     /* green-500 */
+    --gradient-header-middle: 107, 33, 168;   /* purple-800 */
+    --gradient-header-end: 192, 132, 252;     /* purple-400 */
+}
+
+/* Тема Pastel */
+.theme-pastel {
+    --color-primary-50: 240, 249, 244;  /* близько до caefd7 */
+    --color-primary-100: 220, 243, 232; /* близько до caefd7 */
+    --color-primary-200: 202, 239, 215; /* caefd7 */
+    --color-primary-300: 245, 191, 215; /* f5bfd7 */
+    --color-primary-400: 171, 201, 233; /* abc9e9 */
+    --color-primary-500: 202, 239, 215; /* caefd7 */
+    --color-primary-600: 171, 201, 233; /* abc9e9 */
+    --color-primary-700: 245, 191, 215; /* f5bfd7 */
+    --color-primary-800: 202, 239, 215; /* caefd7 */
+    --color-primary-900: 171, 201, 233; /* abc9e9 */
+    --color-primary-950: 245, 191, 215; /* f5bfd7 */
+
+    /* Градієнти для теми Pastel */
+    --gradient-primary-start: 202, 239, 215;  /* caefd7 */
+    --gradient-primary-middle: 245, 191, 215; /* f5bfd7 */
+    --gradient-primary-end: 171, 201, 233;    /* abc9e9 */
+
+    /* Градієнти для різних елементів */
+    --gradient-button-start: 202, 239, 215;   /* caefd7 */
+    --gradient-button-middle: 245, 191, 215;  /* f5bfd7 */
+    --gradient-button-end: 171, 201, 233;     /* abc9e9 */
+
+    --gradient-card-start: 202, 239, 215;     /* caefd7 */
+    --gradient-card-middle: 245, 191, 215;    /* f5bfd7 */
+    --gradient-card-end: 171, 201, 233;       /* abc9e9 */
+
+    --gradient-badge-start: 202, 239, 215;    /* caefd7 */
+    --gradient-badge-middle: 245, 191, 215;   /* f5bfd7 */
+    --gradient-badge-end: 171, 201, 233;      /* abc9e9 */
+
+    --gradient-nav-start: 202, 239, 215;      /* caefd7 */
+    --gradient-nav-middle: 245, 191, 215;     /* f5bfd7 */
+    --gradient-nav-end: 171, 201, 233;        /* abc9e9 */
+
+    --gradient-header-start: 202, 239, 215;   /* caefd7 */
+    --gradient-header-middle: 245, 191, 215;  /* f5bfd7 */
+    --gradient-header-end: 171, 201, 233;     /* abc9e9 */
+}
+
+/* Тема Vibrant */
+.theme-vibrant {
+    --color-primary-50: 240, 249, 244;  /* світлий відтінок */
+    --color-primary-100: 220, 243, 232; /* світлий відтінок */
+    --color-primary-200: 94, 222, 239;  /* 5edeef */
+    --color-primary-300: 220, 233, 86;  /* dce956 */
+    --color-primary-400: 233, 143, 192; /* e98fc0 */
+    --color-primary-500: 94, 222, 239;  /* 5edeef */
+    --color-primary-600: 220, 233, 86;  /* dce956 */
+    --color-primary-700: 233, 143, 192; /* e98fc0 */
+    --color-primary-800: 94, 222, 239;  /* 5edeef */
+    --color-primary-900: 220, 233, 86;  /* dce956 */
+    --color-primary-950: 233, 143, 192; /* e98fc0 */
+
+    /* Градієнти для теми Vibrant */
+    --gradient-primary-start: 94, 222, 239;   /* 5edeef */
+    --gradient-primary-middle: 220, 233, 86;  /* dce956 */
+    --gradient-primary-end: 233, 143, 192;    /* e98fc0 */
+
+    /* Градієнти для різних елементів */
+    --gradient-button-start: 94, 222, 239;    /* 5edeef */
+    --gradient-button-middle: 220, 233, 86;   /* dce956 */
+    --gradient-button-end: 233, 143, 192;     /* e98fc0 */
+
+    --gradient-card-start: 94, 222, 239;      /* 5edeef */
+    --gradient-card-middle: 220, 233, 86;     /* dce956 */
+    --gradient-card-end: 233, 143, 192;       /* e98fc0 */
+
+    --gradient-badge-start: 94, 222, 239;     /* 5edeef */
+    --gradient-badge-middle: 220, 233, 86;    /* dce956 */
+    --gradient-badge-end: 233, 143, 192;      /* e98fc0 */
+
+    --gradient-nav-start: 94, 222, 239;       /* 5edeef */
+    --gradient-nav-middle: 220, 233, 86;      /* dce956 */
+    --gradient-nav-end: 233, 143, 192;        /* e98fc0 */
+
+    --gradient-header-start: 94, 222, 239;    /* 5edeef */
+    --gradient-header-middle: 220, 233, 86;   /* dce956 */
+    --gradient-header-end: 233, 143, 192;     /* e98fc0 */
+}
+
+/* Багатокольорові градієнтні теми */
+
+/* Синьо-бірюзово-зелена тема */
+.theme-ocean {
+    --color-primary-50: 240, 249, 255;  /* sky-50 */
+    --color-primary-100: 224, 242, 254; /* sky-100 */
+    --color-primary-200: 186, 230, 253; /* sky-200 */
+    --color-primary-300: 125, 211, 252; /* sky-300 */
+    --color-primary-400: 56, 189, 248;  /* sky-400 */
+    --color-primary-500: 14, 165, 233;  /* sky-500 */
+    --color-primary-600: 2, 132, 199;   /* sky-600 */
+    --color-primary-700: 3, 105, 161;   /* sky-700 */
+    --color-primary-800: 7, 89, 133;    /* sky-800 */
+    --color-primary-900: 12, 74, 110;   /* sky-900 */
+    --color-primary-950: 8, 47, 73;     /* sky-950 */
+
+    /* Градієнти для синьо-бірюзово-зеленої теми */
+    --gradient-primary-start: 2, 132, 199;   /* sky-600 */
+    --gradient-primary-middle: 6, 182, 212;  /* cyan-500 */
+    --gradient-primary-end: 20, 184, 166;    /* teal-500 */
+
+    /* Градієнти для різних елементів */
+    --gradient-button-start: 59, 130, 246;   /* blue-500 */
+    --gradient-button-middle: 6, 182, 212;   /* cyan-500 */
+    --gradient-button-end: 20, 184, 166;     /* teal-500 */
+
+    --gradient-card-start: 59, 130, 246;     /* blue-500 */
+    --gradient-card-middle: 6, 182, 212;     /* cyan-500 */
+    --gradient-card-end: 20, 184, 166;       /* teal-500 */
+
+    --gradient-badge-start: 59, 130, 246;    /* blue-500 */
+    --gradient-badge-middle: 6, 182, 212;    /* cyan-500 */
+    --gradient-badge-end: 20, 184, 166;      /* teal-500 */
+
+    --gradient-nav-start: 59, 130, 246;      /* blue-500 */
+    --gradient-nav-middle: 6, 182, 212;      /* cyan-500 */
+    --gradient-nav-end: 20, 184, 166;        /* teal-500 */
+
+    --gradient-header-start: 59, 130, 246;   /* blue-500 */
+    --gradient-header-middle: 6, 182, 212;   /* cyan-500 */
+    --gradient-header-end: 20, 184, 166;     /* teal-500 */
+}
+
+/* Червоно-оранжево-жовта тема */
+.theme-sunset {
+    --color-primary-50: 255, 247, 237;  /* orange-50 */
+    --color-primary-100: 255, 237, 213; /* orange-100 */
+    --color-primary-200: 254, 215, 170; /* orange-200 */
+    --color-primary-300: 253, 186, 116; /* orange-300 */
+    --color-primary-400: 251, 146, 60;  /* orange-400 */
+    --color-primary-500: 249, 115, 22;  /* orange-500 */
+    --color-primary-600: 234, 88, 12;   /* orange-600 */
+    --color-primary-700: 194, 65, 12;   /* orange-700 */
+    --color-primary-800: 154, 52, 18;   /* orange-800 */
+    --color-primary-900: 124, 45, 18;   /* orange-900 */
+    --color-primary-950: 67, 20, 7;     /* orange-950 */
+
+    /* Градієнти для червоно-оранжево-жовтої теми */
+    --gradient-primary-start: 234, 88, 12;   /* orange-600 */
+    --gradient-primary-middle: 249, 115, 22; /* orange-500 */
+    --gradient-primary-end: 245, 158, 11;    /* amber-500 */
+
+    /* Градієнти для різних елементів */
+    --gradient-button-start: 244, 63, 94;    /* rose-500 */
+    --gradient-button-middle: 249, 115, 22;  /* orange-500 */
+    --gradient-button-end: 245, 158, 11;     /* amber-500 */
+
+    --gradient-card-start: 244, 63, 94;      /* rose-500 */
+    --gradient-card-middle: 249, 115, 22;    /* orange-500 */
+    --gradient-card-end: 245, 158, 11;       /* amber-500 */
+
+    --gradient-badge-start: 244, 63, 94;     /* rose-500 */
+    --gradient-badge-middle: 249, 115, 22;   /* orange-500 */
+    --gradient-badge-end: 245, 158, 11;      /* amber-500 */
+
+    --gradient-nav-start: 244, 63, 94;       /* rose-500 */
+    --gradient-nav-middle: 249, 115, 22;     /* orange-500 */
+    --gradient-nav-end: 245, 158, 11;        /* amber-500 */
+
+    --gradient-header-start: 244, 63, 94;    /* rose-500 */
+    --gradient-header-middle: 249, 115, 22;  /* orange-500 */
+    --gradient-header-end: 245, 158, 11;     /* amber-500 */
+}
+
+/* Рожево-фіолетова тема */
+.theme-neon {
+    --color-primary-50: 253, 242, 248;  /* pink-50 */
+    --color-primary-100: 252, 231, 243; /* pink-100 */
+    --color-primary-200: 251, 207, 232; /* pink-200 */
+    --color-primary-300: 249, 168, 212; /* pink-300 */
+    --color-primary-400: 244, 114, 182; /* pink-400 */
+    --color-primary-500: 236, 72, 153;  /* pink-500 */
+    --color-primary-600: 219, 39, 119;  /* pink-600 */
+    --color-primary-700: 190, 24, 93;   /* pink-700 */
+    --color-primary-800: 157, 23, 77;   /* pink-800 */
+    --color-primary-900: 131, 24, 67;   /* pink-900 */
+    --color-primary-950: 80, 7, 36;     /* pink-950 */
+
+    /* Градієнти для рожево-фіолетової теми */
+    --gradient-primary-start: 219, 39, 119;  /* pink-600 */
+    --gradient-primary-middle: 217, 70, 239; /* fuchsia-500 */
+    --gradient-primary-end: 147, 51, 234;    /* purple-600 */
+
+    /* Градієнти для різних елементів */
+    --gradient-button-start: 236, 72, 153;  /* pink-500 */
+    --gradient-button-middle: 217, 70, 239; /* fuchsia-500 */
+    --gradient-button-end: 168, 85, 247;    /* purple-500 */
+
+    --gradient-card-start: 236, 72, 153;    /* pink-500 */
+    --gradient-card-middle: 217, 70, 239;   /* fuchsia-500 */
+    --gradient-card-end: 168, 85, 247;      /* purple-500 */
+
+    --gradient-badge-start: 236, 72, 153;   /* pink-500 */
+    --gradient-badge-middle: 217, 70, 239;  /* fuchsia-500 */
+    --gradient-badge-end: 168, 85, 247;     /* purple-500 */
+
+    --gradient-nav-start: 236, 72, 153;     /* pink-500 */
+    --gradient-nav-middle: 217, 70, 239;    /* fuchsia-500 */
+    --gradient-nav-end: 168, 85, 247;       /* purple-500 */
+
+    --gradient-header-start: 236, 72, 153;  /* pink-500 */
+    --gradient-header-middle: 217, 70, 239; /* fuchsia-500 */
+    --gradient-header-end: 168, 85, 247;    /* purple-500 */
+}
+
+/* Стилі для темної теми */
+.dark body {
+    color-scheme: dark;
+}
+
+/* Плавний перехід між темами */
+html.dark {
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* Стилі для кнопки перемикання теми */
+.theme-switcher-btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.theme-switcher-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Стилі для кнопок вибору кольорової теми */
+.color-theme-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.color-theme-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.color-theme-btn.active {
+    border-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.3), 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.dark .color-theme-btn.active {
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Додатковий ефект для кнопок вибору теми */
+.color-theme-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.color-theme-btn:hover::after {
+    opacity: 0.3;
+}
+
+.color-theme-btn.active::after {
+    opacity: 0.2;
+}
+
+/* Градієнтні стилі для кнопок */
+.btn-gradient {
+    background: linear-gradient(to right, rgb(var(--gradient-button-start)), rgb(var(--gradient-button-middle)), rgb(var(--gradient-button-end)));
+    color: white;
+    transition: all 0.3s ease;
+    background-size: 200% auto;
+}
+
+.dark .btn-gradient {
+    background: linear-gradient(to right, rgb(var(--gradient-button-start)), rgb(var(--gradient-button-middle)), rgb(var(--gradient-button-end)));
+    filter: brightness(1.1);
+    background-size: 200% auto;
+}
+
+.btn-gradient:hover {
+    background-position: right center;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    filter: brightness(0.95);
+}
+
+.dark .btn-gradient:hover {
+    background-position: right center;
+    filter: brightness(1.2);
+}
+
+/* Градієнтні стилі для заголовків */
+.header-gradient {
+    background: linear-gradient(to right, rgb(var(--gradient-header-start)), rgb(var(--gradient-header-middle)), rgb(var(--gradient-header-end)));
+    color: white;
+    background-size: 200% auto;
+}
+
+.dark .header-gradient {
+    background: linear-gradient(to right, rgb(var(--gradient-header-start)), rgb(var(--gradient-header-middle)), rgb(var(--gradient-header-end)));
+    filter: brightness(0.9);
+    background-size: 200% auto;
+}
+
+/* Градієнтні стилі для карток */
+.card-gradient {
+    background: linear-gradient(135deg, rgb(var(--gradient-card-start)), rgb(var(--gradient-card-middle)), rgb(var(--gradient-card-end)));
+    color: white;
+    background-size: 200% auto;
+}
+
+.dark .card-gradient {
+    background: linear-gradient(135deg, rgb(var(--gradient-card-start)), rgb(var(--gradient-card-middle)), rgb(var(--gradient-card-end)));
+    filter: brightness(0.85);
+    background-size: 200% auto;
+}
+
+/* Градієнтні стилі для бейджів */
+.badge-gradient {
+    background: linear-gradient(to right, rgba(var(--gradient-badge-start), 0.8), rgba(var(--gradient-badge-middle), 0.8), rgba(var(--gradient-badge-end), 0.8));
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-size: 200% auto;
+}
+
+.badge-gradient:hover {
+    background-position: right center;
+}
+
+/* Стилі для елементів інтерфейсу */
+.text-primary-500 {
+    color: rgb(var(--color-primary-500));
+}
+
+.text-primary-600 {
+    color: rgb(var(--color-primary-600));
+}
+
+.text-primary-700 {
+    color: rgb(var(--color-primary-700));
+}
+
+.bg-primary-500 {
+    background-color: rgb(var(--color-primary-500));
+}
+
+.bg-primary-600 {
+    background-color: rgb(var(--color-primary-600));
+}
+
+.bg-primary-700 {
+    background-color: rgb(var(--color-primary-700));
+}
+
+.border-primary-500 {
+    border-color: rgb(var(--color-primary-500));
+}
+
+.border-primary-600 {
+    border-color: rgb(var(--color-primary-600));
+}
+
+.ring-primary-500 {
+    --tw-ring-color: rgb(var(--color-primary-500));
+}
+
+.focus\:ring-primary-500:focus {
+    --tw-ring-color: rgb(var(--color-primary-500));
+}
+
+/* Градієнтні стилі для полів введення, select, textarea та section */
+.input-gradient, .select-gradient, .textarea-gradient, .section-gradient {
+    border: 1px solid transparent !important;
+    background-clip: padding-box, border-box !important;
+    background-origin: padding-box, border-box !important;
+    background-image:
+        linear-gradient(to bottom, rgb(255, 255, 255), rgb(255, 255, 255)),
+        linear-gradient(90deg, rgb(var(--gradient-button-start)), rgb(var(--gradient-button-end))) !important;
+}
+
+.dark .input-gradient, .dark .select-gradient, .dark .textarea-gradient, .dark .section-gradient {
+    background-image:
+        linear-gradient(to bottom, rgb(17, 24, 39), rgb(17, 24, 39)),
+        linear-gradient(90deg, rgb(var(--gradient-button-start)), rgb(var(--gradient-button-end))) !important;
+}
+
+.input-gradient:focus, .select-gradient:focus, .textarea-gradient:focus {
+    border: 1px solid transparent !important;
+    box-shadow: 0 0 0 2px rgba(var(--gradient-button-middle), 0.25) !important;
+}
+
+/* Градієнтні стилі для чекбоксів */
+input[type="checkbox"].checkbox-gradient {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid transparent;
+    background-clip: padding-box, border-box;
+    background-origin: padding-box, border-box;
+    background-image:
+        linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)),
+        linear-gradient(90deg, rgb(var(--gradient-button-start)), rgb(var(--gradient-button-end)));
+    position: relative;
+    cursor: pointer;
+}
+
+.dark input[type="checkbox"].checkbox-gradient {
+    background-image:
+        linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)),
+        linear-gradient(90deg, rgb(var(--gradient-button-start)), rgb(var(--gradient-button-end)));
+}
+
+input[type="checkbox"].checkbox-gradient:checked {
+    background-image:
+        linear-gradient(90deg, rgb(var(--gradient-button-start)), rgb(var(--gradient-button-end))),
+        linear-gradient(90deg, rgb(var(--gradient-button-start)), rgb(var(--gradient-button-end)));
+}
+
+input[type="checkbox"].checkbox-gradient:checked::after {
+    content: '';
+    position: absolute;
+    top: 0.1rem;
+    left: 0.3rem;
+    width: 0.3rem;
+    height: 0.5rem;
+    border: solid white;
+    border-width: 0 0.15rem 0.15rem 0;
+    transform: rotate(45deg);
+}
+
+input[type="checkbox"].checkbox-gradient:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(var(--gradient-button-middle), 0.25);
+}
