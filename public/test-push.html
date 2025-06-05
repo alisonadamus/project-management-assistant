@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест Push-повідомлень</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e9; color: #2e7d32; }
+        .info { background: #e3f2fd; color: #1565c0; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #2196f3; color: white; }
+        .btn-success { background: #4caf50; color: white; }
+        .btn-danger { background: #f44336; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Тест Push-повідомлень</h1>
+    
+    <div>
+        <button id="checkSupport" class="btn-primary">Перевірити підтримку</button>
+        <button id="requestPermission" class="btn-success">Запросити дозвіл</button>
+        <button id="subscribe" class="btn-success">Підписатися</button>
+        <button id="testNotification" class="btn-primary">Тестове повідомлення</button>
+        <button id="unsubscribe" class="btn-danger">Відписатися</button>
+    </div>
+    
+    <div id="logs"></div>
+    
+    <script>
+        const VAPID_PUBLIC_KEY = 'BPKBjbL07q8asNWFJA8dq2-69VCeGjmJOtPDAQv1wdFgOqFVMoUqxy1cQflOHkMjBdJ1d_Nqm7tn5WX8kgWNbCs';
+        let registration = null;
+        let subscription = null;
+        
+        const logs = document.getElementById('logs');
+        
+        function addLog(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            logs.appendChild(div);
+            console.log(message);
+        }
+        
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/-/g, '+')
+                .replace(/_/g, '/');
+            
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+        
+        // Перевірка підтримки
+        document.getElementById('checkSupport').addEventListener('click', () => {
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                addLog('✅ Push-повідомлення підтримуються!', 'success');
+                addLog(`Дозвіл: ${Notification.permission}`, 'info');
+            } else {
+                addLog('❌ Push-повідомлення не підтримуються', 'error');
+            }
+        });
+        
+        // Запит дозволу
+        document.getElementById('requestPermission').addEventListener('click', async () => {
+            try {
+                const permission = await Notification.requestPermission();
+                addLog(`Дозвіл отримано: ${permission}`, permission === 'granted' ? 'success' : 'error');
+            } catch (error) {
+                addLog(`Помилка запиту дозволу: ${error.message}`, 'error');
+            }
+        });
+        
+        // Підписка
+        document.getElementById('subscribe').addEventListener('click', async () => {
+            try {
+                if (!registration) {
+                    registration = await navigator.serviceWorker.register('/sw.js');
+                    addLog('Service Worker зареєстровано', 'success');
+                }
+                
+                subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                });
+                
+                addLog('Push підписка створена!', 'success');
+                addLog(`Endpoint: ${subscription.endpoint.substring(0, 50)}...`, 'info');
+                
+                // Відправляємо на сервер (потрібна авторизація)
+                addLog('Для збереження підписки потрібно увійти в систему', 'info');
+                
+            } catch (error) {
+                addLog(`Помилка підписки: ${error.message}`, 'error');
+            }
+        });
+        
+        // Тестове повідомлення
+        document.getElementById('testNotification').addEventListener('click', () => {
+            if (Notification.permission === 'granted') {
+                new Notification('Тестове повідомлення', {
+                    body: 'Це тестове push-повідомлення!',
+                    icon: '/favicon.ico',
+                    badge: '/favicon.ico'
+                });
+                addLog('Тестове повідомлення відправлено', 'success');
+            } else {
+                addLog('Дозвіл на повідомлення не надано', 'error');
+            }
+        });
+        
+        // Відписка
+        document.getElementById('unsubscribe').addEventListener('click', async () => {
+            try {
+                if (subscription) {
+                    await subscription.unsubscribe();
+                    addLog('Відписка успішна', 'success');
+                    subscription = null;
+                } else {
+                    addLog('Немає активної підписки', 'info');
+                }
+            } catch (error) {
+                addLog(`Помилка відписки: ${error.message}`, 'error');
+            }
+        });
+        
+        // Автоматична перевірка при завантаженні
+        window.addEventListener('load', () => {
+            addLog('Сторінка завантажена. Натисніть "Перевірити підтримку"', 'info');
+        });
+    </script>
+</body>
+</html>

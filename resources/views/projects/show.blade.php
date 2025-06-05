@@ -13,20 +13,7 @@
 
                 @if(auth()->check() && ($isAdmin || $isSupervisor) && $canEditProject)
                     <div class="flex space-x-2">
-                        @if($isSupervisor && !$project->assigned_to)
-                            @php
-                                $offersCount = \Alison\ProjectManagementAssistant\Models\Offer::where('project_id', $project->id)->count();
-                            @endphp
-                            <a href="{{ route('teacher.offers.project', $project) }}"
-                               class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
-                                     stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                </svg>
-                                Заявки ({{ $offersCount }})
-                            </a>
-                        @endif
+
 
                         <a href="{{ route('teacher.projects.edit', $project) }}"
                            class="inline-flex items-center px-4 py-2 btn-gradient border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150">
@@ -70,7 +57,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg page-container-gradient">
                 <div class="p-6">
                     @if(session('success'))
                         <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
@@ -109,9 +96,10 @@
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Технології</h3>
                                     <div class="flex flex-wrap gap-2">
                                         @foreach($project->technologies as $tech)
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                            <a href="{{ route('technologies.show', $tech) }}"
+                                               class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium badge-gradient hover:shadow-md transition-all duration-200 transform hover:scale-105">
                                                 {{ $tech->name }}
-                                            </span>
+                                            </a>
                                         @endforeach
                                     </div>
                                 </div>
@@ -150,7 +138,7 @@
                                             </svg>
                                             <div>
                                                 <p class="text-sm text-gray-500 dark:text-gray-400">Науковий керівник</p>
-                                                <p class="text-gray-900 dark:text-white">{{ $project->supervisor->user->name }}</p>
+                                                <p class="text-gray-900 dark:text-white">{{ $project->supervisor->user->full_name }}</p>
                                             </div>
                                         </div>
                                     @endif
@@ -182,7 +170,7 @@
                                             </svg>
                                             <div>
                                                 <p class="text-sm text-gray-500 dark:text-gray-400">Студент</p>
-                                                <p class="text-gray-900 dark:text-white">{{ $project->assignedTo->name }}</p>
+                                                <p class="text-gray-900 dark:text-white">{{ $project->assignedTo->full_name }}</p>
                                             </div>
                                         </div>
                                     @elseif(auth()->check() && $isSupervisor && !$project->assigned_to)
@@ -190,7 +178,7 @@
                                             $offersCount = \Alison\ProjectManagementAssistant\Models\Offer::where('project_id', $project->id)->count();
                                         @endphp
                                         <div class="mt-4">
-                                            <a href="{{ route('teacher.offers.project', $project) }}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md text-white btn-gradient hover:shadow-md focus:outline-none focus:border-primary-700 focus:ring focus:ring-primary-200 transition ease-in-out duration-150">
+                                            <a href="{{ route('teacher.offers.project', $project) }}" class="inline-flex items-center px-4 py-2 btn-gradient border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                                 </svg>

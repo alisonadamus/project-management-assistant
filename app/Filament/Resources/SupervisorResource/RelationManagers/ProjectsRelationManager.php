@@ -44,7 +44,8 @@ class ProjectsRelationManager extends RelationManager
                 
                 Forms\Components\Select::make('assigned_to')
                     ->label('Призначено')
-                    ->relationship('assignedTo', 'name')
+                    ->relationship('assignedTo', 'id')
+                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->full_name)
                     ->searchable()
                     ->preload(),
                 
@@ -79,10 +80,10 @@ class ProjectsRelationManager extends RelationManager
                     ->searchable()
                     ->sortable(),
                 
-                Tables\Columns\TextColumn::make('assignedTo.name')
+                Tables\Columns\TextColumn::make('assignedTo.full_name')
                     ->label('Призначено')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->getStateUsing(fn ($record) => $record->assignedTo?->full_name),
                 
                 Tables\Columns\TextColumn::make('technologies_count')
                     ->label('Кількість технологій')
@@ -90,7 +91,7 @@ class ProjectsRelationManager extends RelationManager
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('offers_count')
-                    ->label('Кількість пропозицій')
+                    ->label('Кількість заявок')
                     ->counts('offers')
                     ->sortable(),
             ])
@@ -103,7 +104,8 @@ class ProjectsRelationManager extends RelationManager
                 
                 Tables\Filters\SelectFilter::make('assigned_to')
                     ->label('Призначено')
-                    ->relationship('assignedTo', 'name')
+                    ->relationship('assignedTo', 'id')
+                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->full_name)
                     ->searchable()
                     ->preload(),
             ])

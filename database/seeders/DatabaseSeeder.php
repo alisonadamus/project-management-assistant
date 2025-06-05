@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SubjectSeeder::class);
         $this->call(CategorySeeder::class);
         $this->call(EventSeeder::class);
+        $this->call(SubeventSeeder::class);
         $this->call(SupervisorSeeder::class);
         $this->call(TechnologySeeder::class);
         $this->call(ProjectSeeder::class);

@@ -9,7 +9,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6 page-container-gradient">
                 @if(session('success'))
                     <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
                         <span class="block sm:inline">{{ session('success') }}</span>
@@ -79,7 +79,7 @@
                                                 @foreach($projectOffers as $offer)
                                                     <tr>
                                                         <td class="px-6 py-4 whitespace-nowrap">
-                                                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $offer->student->name }}</div>
+                                                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $offer->student->full_name }}</div>
                                                             <div class="text-sm text-gray-500 dark:text-gray-400">{{ $offer->student->email }}</div>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -115,8 +115,23 @@
                                     </div>
                                 </div>
 
-                                <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-right">
-                                    <a href="{{ route('projects.show', $project) }}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md text-white btn-gradient hover:shadow-md focus:outline-none focus:border-primary-700 focus:ring focus:ring-primary-200 transition ease-in-out duration-150">
+                                <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700 flex justify-between items-center">
+                                    <div class="flex space-x-2">
+                                        @if($slotsAvailable > 0 && !$project->assigned_to && $projectOffers->count() > 1)
+                                            <form action="{{ route('teacher.offers.assign-random', ['project' => $project->id]) }}" method="POST" class="inline-block">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="inline-flex items-center px-4 py-2 btn-gradient border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                                                        onclick="return confirm('Ви впевнені, що хочете випадково призначити студента до цього проекту?')">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                    </svg>
+                                                    Рандом
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                    <a href="{{ route('projects.show', $project) }}" class="inline-flex items-center px-4 py-2 btn-gradient border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                         Деталі проекту
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />

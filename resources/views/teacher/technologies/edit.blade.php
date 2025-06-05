@@ -65,7 +65,12 @@
                         <!-- Опис -->
                         <div class="md:col-span-2">
                             <x-label for="description" value="{{ __('Опис') }}" />
-                            <x-textarea id="description" name="description" rows="4" class="block mt-1 w-full">{{ old('description', $technology->description) }}</x-textarea>
+                            <x-markdown-editor
+                                name="description"
+                                :value="old('description', $technology->description)"
+                                placeholder="Введіть опис технології (підтримується Markdown)"
+                                id="technology-description-editor"
+                            />
                             @error('description')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror

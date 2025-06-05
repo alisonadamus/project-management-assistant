@@ -6,13 +6,17 @@ use Alison\ProjectManagementAssistant\Http\Controllers\DashboardController;
 use Alison\ProjectManagementAssistant\Http\Controllers\EventController;
 use Alison\ProjectManagementAssistant\Http\Controllers\MessageController;
 use Alison\ProjectManagementAssistant\Http\Controllers\ProjectController;
+use Alison\ProjectManagementAssistant\Http\Controllers\PushSubscriptionController;
 use Alison\ProjectManagementAssistant\Http\Controllers\StudentOfferController;
+use Alison\ProjectManagementAssistant\Http\Controllers\SubeventController;
 use Alison\ProjectManagementAssistant\Http\Controllers\SubjectController;
 use Alison\ProjectManagementAssistant\Http\Controllers\TeacherCategoryController;
 use Alison\ProjectManagementAssistant\Http\Controllers\TeacherEventController;
 use Alison\ProjectManagementAssistant\Http\Controllers\TeacherOfferController;
 use Alison\ProjectManagementAssistant\Http\Controllers\TeacherProjectController;
 use Alison\ProjectManagementAssistant\Http\Controllers\TeacherSubjectController;
+
+
 use Alison\ProjectManagementAssistant\Http\Controllers\TeacherTechnologyController;
 use Alison\ProjectManagementAssistant\Http\Controllers\TechnologyController;
 use Illuminate\Support\Facades\Route;
@@ -69,6 +73,50 @@ Route::middleware([
     Route::post('/projects/{project}/messages', [MessageController::class, 'sendMessage'])->middleware('auth')->name('messages.send');
     Route::post('/projects/{project}/messages/read', [MessageController::class, 'markAsRead'])->middleware('auth')->name('messages.read');
 
+    // Маршрути для push підписок
+    Route::post('/push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push-subscriptions.store');
+    Route::delete('/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push-subscriptions.destroy');
+    Route::get('/push-subscriptions/status', [PushSubscriptionController::class, 'status'])->name('push-subscriptions.status');
+
+    // Тестовий маршрут для push-повідомлень
+    Route::get('/test-push-notification', function() {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['error' => 'Потрібна авторизація'], 401);
+        }
+
+        if (!$user->pushSubscriptions()->exists()) {
+            return response()->json(['error' => 'Немає push підписок. Увімкніть push в профілі.'], 400);
+        }
+
+        // Створюємо тестове повідомлення
+        $project = \Alison\ProjectManagementAssistant\Models\Project::whereNotNull('assigned_to')->first();
+        if (!$project) {
+            return response()->json(['error' => 'Немає проектів для тестування'], 400);
+        }
+
+        $message = \Alison\ProjectManagementAssistant\Models\Message::create([
+            'project_id' => $project->id,
+            'sender_id' => $user->id,
+            'message' => 'Тестове повідомлення для push-сповіщення',
+            'is_read' => false,
+        ]);
+
+        $message->load('sender');
+
+        try {
+            $user->notify(new \Alison\ProjectManagementAssistant\Notifications\NewChatMessageNotification($message));
+            return response()->json(['success' => 'Push-повідомлення відправлено!']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Помилка: ' . $e->getMessage()], 500);
+        }
+    })->name('test.push');
+
+    // Маршрути для підподій (доступні всім авторизованим користувачам для перегляду)
+    Route::get('/events/{event}/gantt-data', [SubeventController::class, 'getGanttData'])->middleware('auth')->name('subevents.gantt-data');
+
+
+
     // Маршрути для керування подіями (доступні користувачам з відповідними дозволами)
     Route::prefix('teacher')->name('teacher.')->group(function () {
         // Створення, редагування та видалення подій
@@ -116,6 +164,14 @@ Route::middleware([
         Route::get('/offers', [TeacherOfferController::class, 'index'])->middleware('permission:view offers')->name('offers.index');
         Route::get('/projects/{project}/offers', [TeacherOfferController::class, 'showProjectOffers'])->middleware('permission:view offers')->name('offers.project');
         Route::post('/projects/{project}/offers/{studentId}/approve', [TeacherOfferController::class, 'approve'])->name('offers.approve');
+        Route::post('/projects/{project}/offers/assign-random', [TeacherOfferController::class, 'assignRandom'])->name('offers.assign-random');
         Route::delete('/projects/{project}/offers/{studentId}/reject', [TeacherOfferController::class, 'reject'])->name('offers.reject');
+
+        // Керування підподіями (доступно тільки науковим керівникам події)
+        Route::get('/events/{event}/subevents/create', [SubeventController::class, 'create'])->name('subevents.create');
+        Route::post('/events/{event}/subevents', [SubeventController::class, 'store'])->name('subevents.store');
+        Route::get('/events/{event}/subevents/{subevent}/edit', [SubeventController::class, 'edit'])->name('subevents.edit');
+        Route::put('/events/{event}/subevents/{subevent}', [SubeventController::class, 'update'])->name('subevents.update');
+        Route::delete('/events/{event}/subevents/{subevent}', [SubeventController::class, 'destroy'])->name('subevents.destroy');
     });
 });

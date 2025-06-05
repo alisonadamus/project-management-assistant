@@ -1,0 +1,437 @@
+/* Кастомні стилі для діаграми Ганта */
+
+/* Основні стилі для контейнера */
+.gantt {
+    font-family: inherit;
+    background: transparent;
+    width: auto;
+    height: auto;
+    min-height: 350px;
+    min-width: 100%;
+}
+
+/* Стилі для масштабованого контейнера */
+#gantt-chart {
+    transition: transform 0.3s ease;
+    transform-origin: top left;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    position: relative;
+}
+
+/* Стилі для SVG елемента діаграми */
+#gantt-chart svg {
+    width: auto !important;
+    min-width: 100%;
+    height: auto;
+    display: block;
+    max-width: none !important;
+}
+
+/* Контейнер з горизонтальною прокруткою */
+#gantt-container {
+    overflow-x: auto;
+    overflow-y: visible;
+    width: 100%;
+}
+
+/* Забезпечуємо правильну прокрутку для всіх елементів діаграми */
+.gantt-container {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.gantt .grid-background,
+.gantt .grid-header,
+.gantt .grid-body {
+    width: auto !important;
+    min-width: 100%;
+}
+
+/* Стилі для правильного відображення в різних режимах */
+.gantt .tick,
+.gantt .row-line {
+    width: auto;
+}
+
+/* Забезпечуємо, що всі елементи діаграми видимі */
+.gantt .bar-wrapper,
+.gantt .arrow {
+    overflow: visible;
+}
+
+/* Важливо: забезпечуємо, що SVG не обрізається */
+.gantt svg {
+    overflow: visible !important;
+}
+
+/* Стилі для прокрутки */
+#gantt-chart::-webkit-scrollbar {
+    height: 8px;
+}
+
+#gantt-chart::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+#gantt-chart::-webkit-scrollbar-thumb {
+    background: var(--primary-color, #4F46E5);
+    border-radius: 4px;
+}
+
+#gantt-chart::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark, #3730A3);
+}
+
+/* Стилі для заголовків */
+.gantt .grid-header {
+    fill: var(--primary-color, #4F46E5);
+    font-weight: 600;
+}
+
+.gantt .grid-header text {
+    fill: currentColor;
+}
+
+/* Стилі для сітки */
+.gantt .grid-row {
+    fill: transparent;
+}
+
+.gantt .grid-row:nth-child(even) {
+    fill: rgba(0, 0, 0, 0.02);
+}
+
+.dark .gantt .grid-row:nth-child(even) {
+    fill: rgba(255, 255, 255, 0.02);
+}
+
+/* Стилі для ліній сітки */
+.gantt .row-line {
+    stroke: rgba(0, 0, 0, 0.1);
+}
+
+.dark .gantt .row-line {
+    stroke: rgba(255, 255, 255, 0.1);
+}
+
+.gantt .tick {
+    stroke: rgba(0, 0, 0, 0.1);
+}
+
+.dark .gantt .tick {
+    stroke: rgba(255, 255, 255, 0.1);
+}
+
+/* Стилі для тексту дат */
+.gantt .lower-text,
+.gantt .upper-text {
+    fill: currentColor;
+    font-size: 12px;
+}
+
+/* Стилі для назв задач */
+.gantt .task-label {
+    fill: currentColor;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Стилі для барів за замовчуванням */
+.gantt .bar {
+    fill: var(--primary-color, #4F46E5);
+    stroke: var(--primary-color, #4F46E5);
+    stroke-width: 1;
+    rx: 3;
+    ry: 3;
+    transition: all 0.2s ease;
+}
+
+.gantt .bar-progress {
+    fill: var(--primary-dark, #3730A3);
+    rx: 3;
+    ry: 3;
+}
+
+.gantt .bar-label {
+    fill: white;
+    font-size: 11px;
+    font-weight: 500;
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+/* Стилі для hover ефектів */
+.gantt .bar-wrapper:hover .bar {
+    stroke-width: 2;
+    filter: brightness(1.1);
+    cursor: pointer;
+}
+
+/* Стилі для стрілок залежностей */
+.gantt .arrow {
+    stroke: var(--primary-color, #4F46E5);
+    stroke-width: 1.5;
+    fill: none;
+    marker-end: url(#arrowhead);
+}
+
+.gantt .arrow:hover {
+    stroke-width: 2;
+    stroke: var(--primary-dark, #3730A3);
+}
+
+/* Стилі для popup */
+.gantt .popup-wrapper {
+    position: absolute;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.gantt .popup {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    padding: 12px;
+    font-size: 12px;
+    max-width: 250px;
+    pointer-events: auto;
+}
+
+.dark .gantt .popup {
+    background: #374151;
+    border-color: #4b5563;
+    color: white;
+}
+
+/* Стилі для панелі управління */
+#gantt-controls {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+}
+
+.dark #gantt-controls {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Стилі для кнопок перемикання режимів */
+.gantt-view-btn {
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.gantt-view-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Стилі для контролів масштабування */
+#scale-indicator {
+    font-weight: 600;
+    min-width: 60px;
+}
+
+/* Адаптивні стилі */
+@media (max-width: 768px) {
+    .gantt {
+        font-size: 11px;
+    }
+
+    .gantt .bar-label {
+        font-size: 10px;
+    }
+
+    .gantt .lower-text,
+    .gantt .upper-text {
+        font-size: 10px;
+    }
+
+    /* Адаптивна панель управління */
+    #gantt-controls {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+
+    #gantt-controls > div {
+        justify-content: center;
+    }
+
+    /* Менші кнопки на мобільних */
+    .gantt-view-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
+
+/* Стилі для темної теми */
+.dark .gantt {
+    color: #f3f4f6;
+}
+
+.dark .gantt .grid-header {
+    fill: var(--primary-color, #6366f1);
+}
+
+.dark .gantt .bar {
+    fill: var(--primary-color, #6366f1);
+    stroke: var(--primary-color, #6366f1);
+}
+
+.dark .gantt .bar-progress {
+    fill: var(--primary-dark, #4f46e5);
+}
+
+/* Додаткові стилі для темної теми */
+.dark .gantt .lower-text,
+.dark .gantt .upper-text {
+    fill: #f3f4f6 !important;
+}
+
+.dark .gantt .task-label {
+    fill: #f3f4f6 !important;
+}
+
+.dark .gantt .bar-label {
+    fill: white !important;
+}
+
+/* Стилі для popup в темній темі */
+.dark .gantt-container .popup-wrapper {
+    background: #374151 !important;
+    border: 1px solid #4b5563;
+    box-shadow: 0 10px 24px -3px rgba(0, 0, 0, 0.5);
+}
+
+.dark .gantt-container .popup-wrapper .title {
+    color: #f3f4f6 !important;
+}
+
+.dark .gantt-container .popup-wrapper .subtitle {
+    color: #d1d5db !important;
+}
+
+.dark .gantt-container .popup-wrapper .details {
+    color: #9ca3af !important;
+}
+
+/* Стилі для заголовків в темній темі */
+.dark .gantt-container .grid-header {
+    background-color: #374151 !important;
+    border-bottom: 1px solid #4b5563 !important;
+}
+
+.dark .gantt-container .current-upper {
+    background: #374151 !important;
+}
+
+.dark .gantt-container .side-header {
+    background: #374151 !important;
+}
+
+/* Стилі для сітки в темній темі */
+.dark .gantt .grid-row:nth-child(even) {
+    fill: rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark .gantt .row-line {
+    stroke: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .gantt .tick {
+    stroke: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .gantt .tick.thick {
+    stroke: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Стилі для стрілок в темній темі */
+.dark .gantt .arrow {
+    stroke: #f3f4f6 !important;
+}
+
+/* Стилі для кращого відображення тексту на барах */
+.gantt .bar-label {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+    font-weight: 500 !important;
+}
+
+/* Стилі для назв задач */
+.gantt .task-label {
+    font-weight: 500 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .gantt .task-label {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Стилі для градієнтних рамок описів підподій */
+.subevent-description-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.subevent-description-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.dark .subevent-description-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.dark .gantt .arrow {
+    stroke: var(--primary-color, #6366f1);
+}
+
+.dark .gantt .arrow:hover {
+    stroke: var(--primary-dark, #4f46e5);
+}
+
+/* Анімації */
+@keyframes gantt-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.gantt {
+    animation: gantt-fade-in 0.3s ease-out;
+}
+
+/* Стилі для індикатора завантаження */
+.gantt-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--primary-color, #4F46E5);
+}
+
+.gantt-loading::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 8px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

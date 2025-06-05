@@ -68,7 +68,6 @@ class GoogleAuthController extends Controller
 
                 // Створення нового користувача
                 $user = User::query()->create([
-                    'name' => $googleUser->getNickname() ?? Str::before($email, '@'),
                     'email' => $email,
                     'google_id' => $googleUser->getId(),
                     'password' => Hash::make(Str::random(16)),

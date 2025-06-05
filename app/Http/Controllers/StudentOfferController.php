@@ -6,6 +6,7 @@ use Alison\ProjectManagementAssistant\Models\Event;
 use Alison\ProjectManagementAssistant\Models\Offer;
 use Alison\ProjectManagementAssistant\Models\Project;
 use Alison\ProjectManagementAssistant\Models\Supervisor;
+use Alison\ProjectManagementAssistant\Notifications\NewOfferNotification;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -96,10 +97,17 @@ class StudentOfferController extends Controller
 
         // Створення заявки
         try {
-            Offer::create([
+            $offer = Offer::create([
                 'project_id' => $project->id,
                 'student_id' => $user->id,
             ]);
+
+            // Завантажуємо зв'язані дані для повідомлення
+            $offer->load(['project.event', 'project.supervisor.user', 'student']);
+
+            // Надсилаємо повідомлення науковому керівнику
+            $supervisor = $project->supervisor->user;
+            $supervisor->notify(new NewOfferNotification($offer));
 
             return back()->with('success', 'Заявку успішно подано');
         } catch (\Exception $e) {

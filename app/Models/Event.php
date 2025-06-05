@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Event extends Model
 {
@@ -38,6 +39,11 @@ class Event extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function subevents(): HasMany
+    {
+        return $this->hasMany(Subevent::class, 'event_id');
     }
 
     public function supervisors(): HasMany
@@ -116,6 +122,40 @@ class Event extends Model
 
         // В іншому випадку додаємо 'storage/' на початок
         return '/storage/' . $path;
+    }
+
+    /**
+     * Отримати HTML версію опису
+     */
+    protected function descriptionHtml(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (empty($this->description)) {
+                    return '';
+                }
+
+                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                return $markdownService->toHtml($this->description);
+            }
+        );
+    }
+
+    /**
+     * Отримати попередній перегляд опису
+     */
+    protected function descriptionPreview(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (empty($this->description)) {
+                    return '';
+                }
+
+                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                return $markdownService->getPreview($this->description);
+            }
+        );
     }
 
 }

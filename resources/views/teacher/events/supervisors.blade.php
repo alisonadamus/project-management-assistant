@@ -45,7 +45,7 @@
                                 @foreach($event->supervisors as $supervisor)
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                            {{ $supervisor->user->name }}
+                                            {{ $supervisor->user->full_name }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                             {{ $supervisor->user->email }}
@@ -97,7 +97,7 @@
                                     <option value="">Виберіть викладача</option>
                                     @foreach($availableTeachers as $teacher)
                                         <option value="{{ $teacher->id }}" {{ old('user_id') == $teacher->id ? 'selected' : '' }}>
-                                            {{ $teacher->name }} ({{ $teacher->email }})
+                                            {{ $teacher->full_name }} ({{ $teacher->email }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -118,7 +118,12 @@
                             <!-- Примітка -->
                             <div>
                                 <x-label for="note" value="{{ __('Примітка') }}" />
-                                <x-input id="note" class="block mt-1 w-full" type="text" name="note" :value="old('note')" />
+                                <x-markdown-editor
+                                    name="note"
+                                    :value="old('note')"
+                                    placeholder="Введіть примітку для керівника"
+                                    id="supervisor-note-editor"
+                                />
                                 @error('note')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
@@ -157,7 +162,12 @@
                     <!-- Примітка -->
                     <div>
                         <x-label for="edit_note" value="{{ __('Примітка') }}" />
-                        <x-input id="edit_note" class="block mt-1 w-full" type="text" name="note" />
+                        <x-markdown-editor
+                            name="note"
+                            value=""
+                            placeholder="Введіть примітку для керівника"
+                            id="edit-supervisor-note-editor"
+                        />
                     </div>
                 </div>
 
@@ -177,8 +187,26 @@
         function openEditModal(supervisorId, slotCount, note) {
             document.getElementById('editSupervisorForm').action = "{{ route('teacher.events.supervisors.update', [$event, ':supervisorId']) }}".replace(':supervisorId', supervisorId);
             document.getElementById('edit_slot_count').value = slotCount;
-            document.getElementById('edit_note').value = note || '';
+
+            // Оновлюємо значення в EasyMDE редакторі
+            const editTextarea = document.getElementById('edit-supervisor-note-editor');
+            if (editTextarea && editTextarea.easymdeInstance) {
+                editTextarea.easymdeInstance.value(note || '');
+            } else {
+                // Якщо редактор ще не ініціалізований, встановлюємо значення в textarea
+                if (editTextarea) {
+                    editTextarea.value = note || '';
+                }
+            }
+
             document.getElementById('editSupervisorModal').classList.remove('hidden');
+
+            // Ініціалізуємо EasyMDE для модального вікна, якщо ще не ініціалізований
+            setTimeout(function() {
+                if (typeof window.initializeEasyMDE === 'function') {
+                    window.initializeEasyMDE('edit-supervisor-note-editor');
+                }
+            }, 100);
         }
 
         function closeEditModal() {

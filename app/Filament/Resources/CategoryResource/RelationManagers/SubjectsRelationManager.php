@@ -44,7 +44,7 @@ class SubjectsRelationManager extends RelationManager
                     ])
                     ->required(),
 
-                Forms\Components\Textarea::make('description')
+                Forms\Components\MarkdownEditor::make('description')
                     ->label('Опис')
                     ->maxLength(65535),
             ]);

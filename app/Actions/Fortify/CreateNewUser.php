@@ -99,7 +99,6 @@ class CreateNewUser implements CreatesNewUsers
 
         // Валідація основних полів
         Validator::make($input, [
-            'name' => ['required', 'string', 'max:32', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => $this->passwordRules(),
             'first_name' => ['nullable', 'string', 'max:50'], // Змінюємо на nullable, бо будемо автоматично заповнювати
@@ -112,7 +111,6 @@ class CreateNewUser implements CreatesNewUsers
 
         // Створення користувача
         $user = User::query()->create([
-            'name' => $input['name'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
             'first_name' => $input['first_name'],

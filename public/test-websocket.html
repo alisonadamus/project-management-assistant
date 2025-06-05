@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест WebSocket з'єднання</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e9; color: #2e7d32; }
+        .info { background: #e3f2fd; color: #1565c0; }
+    </style>
+</head>
+<body>
+    <h1>Тест WebSocket з'єднання</h1>
+    <div id="logs"></div>
+    
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        const logs = document.getElementById('logs');
+        
+        function addLog(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            logs.appendChild(div);
+            console.log(message);
+        }
+        
+        addLog('Початок тестування WebSocket з\'єднання...');
+        
+        // Тестуємо пряме з'єднання з Reverb
+        try {
+            const pusher = new Pusher('80bkg1p2zl0s5fl9dkwq', {
+                wsHost: 'localhost',
+                wsPort: 8080,
+                wssPort: 8080,
+                forceTLS: false,
+                enabledTransports: ['ws', 'wss'],
+                cluster: '',
+                disableStats: true,
+            });
+            
+            pusher.connection.bind('connected', function() {
+                addLog('✅ Успішно підключено до Reverb сервера!', 'success');
+            });
+            
+            pusher.connection.bind('error', function(err) {
+                addLog(`❌ Помилка підключення: ${JSON.stringify(err)}`, 'error');
+            });
+            
+            pusher.connection.bind('disconnected', function() {
+                addLog('⚠️ З\'єднання розірвано', 'error');
+            });
+            
+            // Тестуємо підписку на канал
+            setTimeout(() => {
+                try {
+                    const channel = pusher.subscribe('test-channel');
+                    addLog('Спроба підписки на тестовий канал...', 'info');
+                    
+                    channel.bind('pusher:subscription_succeeded', function() {
+                        addLog('✅ Успішно підписано на канал!', 'success');
+                    });
+                    
+                    channel.bind('pusher:subscription_error', function(err) {
+                        addLog(`❌ Помилка підписки на канал: ${JSON.stringify(err)}`, 'error');
+                    });
+                } catch (error) {
+                    addLog(`❌ Помилка при підписці: ${error.message}`, 'error');
+                }
+            }, 2000);
+            
+        } catch (error) {
+            addLog(`❌ Критична помилка: ${error.message}`, 'error');
+        }
+    </script>
+</body>
+</html>

@@ -8,11 +8,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -26,6 +28,7 @@ class User extends Authenticatable
     use Notifiable;
     use TwoFactorAuthenticatable;
     use HasRoles;
+    use HasPushSubscriptions;
 
     /**
      * The attributes that are mass assignable.
@@ -33,7 +36,6 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
         'email',
         'password',
         'google_id',
@@ -64,6 +66,9 @@ class User extends Authenticatable
      */
     protected $appends = [
         'profile_photo_url',
+        'full_name',
+        'short_name',
+        'name',
     ];
 
     /**
@@ -102,7 +107,11 @@ class User extends Authenticatable
 
     public function scopeByName(Builder $query, string $name): Builder
     {
-        return $query->where('name', 'like', '%' . $name . '%');
+        return $query->where(function($q) use ($name) {
+            $q->where('first_name', 'like', '%' . $name . '%')
+              ->orWhere('last_name', 'like', '%' . $name . '%')
+              ->orWhere('middle_name', 'like', '%' . $name . '%');
+        });
     }
 
     public function scopeByCourse(Builder $query, int $course): Builder
@@ -132,7 +141,7 @@ class User extends Authenticatable
 
     public function scopeAlphabetically(Builder $query): Builder
     {
-        return $query->orderBy('name');
+        return $query->orderBy('last_name')->orderBy('first_name');
     }
 
     public function scopeRecentFirst(Builder $query): Builder
@@ -143,5 +152,79 @@ class User extends Authenticatable
     public function scopeLimitUsers(Builder $query, int $limit): Builder
     {
         return $query->limit($limit);
+    }
+
+    /**
+     * Отримати повне ім'я користувача
+     */
+    public function getFullNameAttribute(): string
+    {
+        $parts = array_filter([
+            $this->last_name,
+            $this->first_name,
+            $this->middle_name,
+        ]);
+
+        return implode(' ', $parts);
+    }
+
+    /**
+     * Отримати ім'я користувача (для сумісності з Filament)
+     */
+    public function getNameAttribute(): string
+    {
+        return $this->getFullNameAttribute();
+    }
+
+    /**
+     * Отримати коротке ім'я користувача (прізвище та ініціали)
+     */
+    public function getShortNameAttribute(): string
+    {
+        $parts = [$this->last_name];
+
+        if ($this->first_name) {
+            $parts[] = mb_substr($this->first_name, 0, 1) . '.';
+        }
+
+        if ($this->middle_name) {
+            $parts[] = mb_substr($this->middle_name, 0, 1) . '.';
+        }
+
+        return implode(' ', $parts);
+    }
+
+    /**
+     * Отримати HTML версію опису користувача
+     */
+    protected function descriptionHtml(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (empty($this->description)) {
+                    return '';
+                }
+
+                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                return $markdownService->toHtml($this->description);
+            }
+        );
+    }
+
+    /**
+     * Отримати попередній перегляд опису користувача
+     */
+    protected function descriptionPreview(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (empty($this->description)) {
+                    return '';
+                }
+
+                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                return $markdownService->getPreview($this->description);
+            }
+        );
     }
 }

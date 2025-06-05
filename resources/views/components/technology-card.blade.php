@@ -1,6 +1,6 @@
 @props(['technology'])
 
-<div class="bg-white dark:bg-gray-800 overflow-hidden shadow-md rounded-lg hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
+<div class="bg-white dark:bg-gray-800 overflow-hidden shadow-md rounded-lg hover:shadow-lg transition-shadow duration-300 flex flex-col h-full card-border-gradient">
     @if($technology->image)
         <div class="relative h-48 overflow-hidden">
             @php
@@ -45,7 +45,7 @@
         </div>
 
         <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
-            {{ $technology->description ?? 'Немає опису' }}
+            {{ $technology->description_preview ?? 'Немає опису' }}
         </p>
 
         <div class="mt-auto">
@@ -59,7 +59,7 @@
     </div>
 
     <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-right">
-        <a href="{{ route('technologies.show', $technology) }}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md text-white btn-gradient hover:shadow-md focus:outline-none focus:border-primary-700 focus:ring focus:ring-primary-200 transition ease-in-out duration-150">
+        <a href="{{ route('technologies.show', $technology) }}" class="inline-flex items-center px-4 py-2 btn-gradient border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150">
             Детальніше
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />

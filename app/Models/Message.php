@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Message extends Model
 {
@@ -44,5 +45,39 @@ class Message extends Model
     public function scopeByIsRead(Builder $query, bool $isRead): Builder
     {
         return $query->where('is_read', $isRead);
+    }
+
+    /**
+     * Отримати HTML версію повідомлення
+     */
+    protected function messageHtml(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (empty($this->message)) {
+                    return '';
+                }
+
+                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                return $markdownService->toHtml($this->message);
+            }
+        );
+    }
+
+    /**
+     * Отримати попередній перегляд повідомлення
+     */
+    protected function messagePreview(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (empty($this->message)) {
+                    return '';
+                }
+
+                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                return $markdownService->getPreview($this->message, 100);
+            }
+        );
     }
 }

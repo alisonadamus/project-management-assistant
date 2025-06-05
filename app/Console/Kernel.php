@@ -19,6 +19,14 @@ class Kernel extends ConsoleKernel
             ->onOneServer()
             ->withoutOverlapping()
             ->runInBackground();
+
+        // Запускаємо команду щодня о 8:30 ранку для надсилання сповіщень про початок підподій
+        $schedule->command('app:send-subevent-notifications')
+            ->dailyAt('08:30')
+            ->timezone('Europe/Kiev')
+            ->onOneServer()
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 
     /**

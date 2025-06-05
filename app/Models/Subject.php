@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Subject extends Model
 {
@@ -52,5 +53,39 @@ class Subject extends Model
         return $query->whereHas('categories', function ($q) use ($categoryId) {
             $q->where('categories.id', $categoryId);
         });
+    }
+
+    /**
+     * Отримати HTML версію опису
+     */
+    protected function descriptionHtml(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (empty($this->description)) {
+                    return '';
+                }
+
+                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                return $markdownService->toHtml($this->description);
+            }
+        );
+    }
+
+    /**
+     * Отримати попередній перегляд опису
+     */
+    protected function descriptionPreview(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (empty($this->description)) {
+                    return '';
+                }
+
+                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                return $markdownService->getPreview($this->description);
+            }
+        );
     }
 }

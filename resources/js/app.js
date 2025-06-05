@@ -1,4 +1,12 @@
 import './bootstrap';
+import './push-notifications';
+
+// Імпорт EasyMDE
+import EasyMDE from 'easymde';
+import 'easymde/dist/easymde.min.css';
+
+// Робимо EasyMDE доступним глобально
+window.EasyMDE = EasyMDE;
 
 // Функціонал перемикання теми (світла/темна та кольорова)
 document.addEventListener('DOMContentLoaded', function() {

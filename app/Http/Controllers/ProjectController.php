@@ -23,30 +23,59 @@ class ProjectController extends Controller
     public function index(Request $request): View
     {
         $user = Auth::user();
-        $page = $request->get('page', 1);
-        $cacheKey = "user_{$user->id}_projects_page_{$page}";
-        $cacheDuration = now()->addMinutes(30); // Кешуємо на 30 хвилин
 
-        $projects = Cache::remember($cacheKey, $cacheDuration, function () use ($user) {
-            if ($user->hasRole('admin')) {
-                // Для адміністраторів показуємо всі проекти
-                return Project::with(['event', 'supervisor.user', 'technologies', 'assignedTo'])
-                    ->paginate(12);
-            } elseif ($user->hasRole('student')) {
-                // Для студентів показуємо проекти, до яких вони призначені
-                return Project::with(['event', 'supervisor.user', 'technologies'])
-                    ->where('assigned_to', $user->id)
-                    ->paginate(12);
-            } else {
-                // Для викладачів показуємо проекти, де вони є науковими керівниками
-                $supervisorIds = Supervisor::where('user_id', $user->id)->pluck('id');
-                return Project::with(['event', 'supervisor.user', 'technologies', 'assignedTo'])
-                    ->whereIn('supervisor_id', $supervisorIds)
-                    ->paginate(12);
-            }
-        });
+        // Базовий запит залежно від ролі користувача
+        $query = Project::with(['event', 'supervisor.user', 'technologies', 'assignedTo', 'messages', 'offers']);
 
-        return view('projects.index', compact('projects'));
+        if ($user->hasRole('admin')) {
+            // Для адміністраторів показуємо всі проекти
+        } elseif ($user->hasRole('student')) {
+            // Для студентів показуємо проекти, до яких вони призначені
+            $query->where('assigned_to', $user->id);
+        } else {
+            // Для викладачів показуємо проекти, де вони є науковими керівниками
+            $supervisorIds = Supervisor::where('user_id', $user->id)->pluck('id');
+            $query->whereIn('supervisor_id', $supervisorIds);
+        }
+
+        // Фільтрація за пошуком
+        if ($request->filled('search')) {
+            $query->searchByNameOrBody($request->search);
+        }
+
+        // Фільтрація за подією
+        if ($request->filled('event')) {
+            $query->byEvent($request->event);
+        }
+
+        // Фільтрація за технологією
+        if ($request->filled('technology')) {
+            $query->byTechnology($request->technology);
+        }
+
+        // Фільтрація за статусом
+        if ($request->filled('status')) {
+            $query->byStatus($request->status);
+        }
+
+        // Сортування
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortDirection = $request->get('sort_direction', 'desc');
+
+        if ($sortBy === 'name') {
+            $query->orderByName($sortDirection);
+        } else {
+            $query->orderByCreated($sortDirection);
+        }
+
+        $projects = $query->paginate(12);
+        $projects->appends(request()->query());
+
+        // Отримуємо дані для фільтрів
+        $events = Event::orderBy('name')->get();
+        $technologies = Technology::orderBy('name')->get();
+
+        return view('projects.index', compact('projects', 'events', 'technologies'));
     }
 
     /**
@@ -54,7 +83,6 @@ class ProjectController extends Controller
      */
     public function offers(): View
     {
-        // Цей метод буде реалізований пізніше
         return view('projects.offers');
     }
 
@@ -69,10 +97,10 @@ class ProjectController extends Controller
 
         $project = Cache::remember($cacheKey, $cacheDuration, function () use ($project) {
             return $project->load([
-                'event.category', 
-                'supervisor.user', 
-                'technologies', 
-                'assignedTo', 
+                'event.category',
+                'supervisor.user',
+                'technologies',
+                'assignedTo',
                 'messages.sender'
             ]);
         });

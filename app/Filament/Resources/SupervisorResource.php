@@ -44,7 +44,8 @@ class SupervisorResource extends Resource
 
                         Forms\Components\Select::make('user_id')
                             ->label('Користувач')
-                            ->relationship('user', 'name')
+                            ->relationship('user', 'id')
+                            ->getOptionLabelFromRecordUsing(fn (User $record) => $record->full_name)
                             ->required()
                             ->searchable()
                             ->preload(),
@@ -59,7 +60,7 @@ class SupervisorResource extends Resource
 
                 Forms\Components\Section::make('Додаткова інформація')
                     ->schema([
-                        Forms\Components\Textarea::make('note')
+                        Forms\Components\MarkdownEditor::make('note')
                             ->label('Примітка')
                             ->maxLength(255)
                             ->columnSpanFull(),
@@ -76,10 +77,10 @@ class SupervisorResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('user.full_name')
                     ->label('Користувач')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->getStateUsing(fn ($record) => $record->user?->full_name),
 
                 Tables\Columns\TextColumn::make('user.email')
                     ->label('Email')
@@ -120,7 +121,8 @@ class SupervisorResource extends Resource
 
                 Tables\Filters\SelectFilter::make('user')
                     ->label('Користувач')
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'id')
+                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->full_name)
                     ->searchable()
                     ->preload(),
 

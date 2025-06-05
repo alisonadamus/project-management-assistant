@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
 
             <!-- Останні повідомлення -->
-            <div class="section-gradient overflow-hidden shadow-xl sm:rounded-lg">
+            <div class="section-gradient overflow-hidden shadow-xl sm:rounded-lg page-container-gradient">
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
@@ -46,7 +46,7 @@
             </div>
 
             <!-- Події -->
-            <div class="section-gradient overflow-hidden shadow-xl sm:rounded-lg">
+            <div class="section-gradient overflow-hidden shadow-xl sm:rounded-lg page-container-gradient">
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
@@ -83,7 +83,7 @@
 
             <!-- Додаткова статистика для адміністраторів -->
             @if($projectsInfo['type'] === 'admin')
-                <div class="section-gradient overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="section-gradient overflow-hidden shadow-xl sm:rounded-lg page-container-gradient">
                     <div class="p-6">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center">
                             <svg class="mr-2 h-5 w-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">

@@ -496,6 +496,554 @@ html.dark {
     background-size: 200% auto;
 }
 
+/* Стилі для Markdown контенту */
+.prose {
+    color: rgb(55 65 81 / 1); /* gray-700 */
+    max-width: none;
+}
+
+.dark .prose {
+    color: rgb(209 213 219 / 1); /* gray-300 */
+}
+
+/* Заголовки в Markdown */
+.prose h1 {
+    color: rgb(17 24 39 / 1); /* gray-900 */
+    font-weight: 800;
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    margin-top: 0;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid rgb(var(--color-primary-200));
+    padding-bottom: 0.5rem;
+}
+
+.dark .prose h1 {
+    color: rgb(243 244 246 / 1); /* gray-100 */
+    border-bottom-color: rgb(var(--color-primary-700));
+}
+
+.prose h2 {
+    color: rgb(31 41 55 / 1); /* gray-800 */
+    font-weight: 700;
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.dark .prose h2 {
+    color: rgb(229 231 235 / 1); /* gray-200 */
+}
+
+.prose h3 {
+    color: rgb(55 65 81 / 1); /* gray-700 */
+    font-weight: 600;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.dark .prose h3 {
+    color: rgb(209 213 219 / 1); /* gray-300 */
+}
+
+.prose h4, .prose h5, .prose h6 {
+    color: rgb(75 85 99 / 1); /* gray-600 */
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.dark .prose h4, .dark .prose h5, .dark .prose h6 {
+    color: rgb(156 163 175 / 1); /* gray-400 */
+}
+
+/* Параграфи в Markdown */
+.prose p {
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.75;
+}
+
+/* Списки в Markdown */
+.prose ul, .prose ol {
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    padding-left: 1.625rem;
+}
+
+.prose li {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.prose ul > li {
+    position: relative;
+}
+
+.prose ul > li::before {
+    content: "";
+    position: absolute;
+    background: linear-gradient(to right, rgb(var(--gradient-primary-start)), rgb(var(--gradient-primary-end)));
+    border-radius: 50%;
+    width: 0.375rem;
+    height: 0.375rem;
+    top: calc(0.875rem - 0.1875rem);
+    left: -1rem;
+}
+
+/* Посилання в Markdown */
+.prose a {
+    color: rgb(var(--color-primary-600));
+    text-decoration: underline;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.prose a:hover {
+    color: rgb(var(--color-primary-800));
+}
+
+.dark .prose a {
+    color: rgb(var(--color-primary-400));
+}
+
+.dark .prose a:hover {
+    color: rgb(var(--color-primary-200));
+}
+
+/* Код в Markdown */
+.prose code {
+    color: rgb(var(--color-primary-700));
+    background-color: rgb(var(--color-primary-50));
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 1px solid rgb(var(--color-primary-200));
+}
+
+.dark .prose code {
+    color: rgb(var(--color-primary-300));
+    background-color: rgb(var(--color-primary-900));
+    border-color: rgb(var(--color-primary-700));
+}
+
+.prose pre {
+    background-color: rgb(31 41 55 / 1); /* gray-800 */
+    color: rgb(229 231 235 / 1); /* gray-200 */
+    overflow-x: auto;
+    border-radius: 0.5rem;
+    padding: 1.25rem 1.5rem;
+    margin-top: 1.75rem;
+    margin-bottom: 1.75rem;
+    border: 1px solid rgb(75 85 99 / 1); /* gray-600 */
+}
+
+.dark .prose pre {
+    background-color: rgb(17 24 39 / 1); /* gray-900 */
+    border-color: rgb(55 65 81 / 1); /* gray-700 */
+}
+
+.prose pre code {
+    background-color: transparent;
+    border-width: 0;
+    border-radius: 0;
+    padding: 0;
+    font-weight: inherit;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    line-height: inherit;
+}
+
+/* Цитати в Markdown */
+.prose blockquote {
+    font-weight: 500;
+    font-style: italic;
+    color: rgb(75 85 99 / 1); /* gray-600 */
+    border-left: 0.25rem solid rgb(var(--color-primary-300));
+    quotes: "\201C""\201D""\2018""\2019";
+    margin-top: 1.6rem;
+    margin-bottom: 1.6rem;
+    padding-left: 1rem;
+    background: linear-gradient(to right, rgba(var(--color-primary-50), 0.5), transparent);
+    padding: 1rem;
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.dark .prose blockquote {
+    color: rgb(156 163 175 / 1); /* gray-400 */
+    border-left-color: rgb(var(--color-primary-600));
+    background: linear-gradient(to right, rgba(var(--color-primary-900), 0.3), transparent);
+}
+
+/* Таблиці в Markdown */
+.prose table {
+    width: 100%;
+    table-layout: auto;
+    text-align: left;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+    line-height: 1.7142857;
+    border-collapse: collapse;
+    border: 1px solid rgb(var(--color-primary-300));
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.dark .prose table {
+    border-color: rgb(var(--color-primary-600));
+}
+
+.prose thead {
+    background: linear-gradient(to right, rgb(var(--gradient-primary-start)), rgb(var(--gradient-primary-end)));
+    color: white;
+}
+
+.prose thead th {
+    color: white;
+    font-weight: 600;
+    vertical-align: bottom;
+    padding: 0.75rem;
+    border-bottom: 1px solid rgb(var(--color-primary-400));
+}
+
+.prose tbody tr {
+    border-bottom: 1px solid rgb(var(--color-primary-200));
+}
+
+.dark .prose tbody tr {
+    border-bottom-color: rgb(var(--color-primary-700));
+}
+
+.prose tbody tr:last-child {
+    border-bottom-width: 0;
+}
+
+.prose tbody tr:nth-child(even) {
+    background-color: rgba(var(--color-primary-50), 0.5);
+}
+
+.dark .prose tbody tr:nth-child(even) {
+    background-color: rgba(var(--color-primary-900), 0.3);
+}
+
+.prose tbody td {
+    vertical-align: baseline;
+    padding: 0.75rem;
+}
+
+/* Горизонтальні лінії в Markdown */
+.prose hr {
+    border-color: rgb(var(--color-primary-300));
+    border-top-width: 1px;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+    background: linear-gradient(to right, transparent, rgb(var(--color-primary-300)), transparent);
+    height: 1px;
+    border: none;
+}
+
+.dark .prose hr {
+    background: linear-gradient(to right, transparent, rgb(var(--color-primary-600)), transparent);
+}
+
+/* Зображення в Markdown */
+.prose img {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgb(var(--color-primary-200));
+}
+
+.dark .prose img {
+    border-color: rgb(var(--color-primary-700));
+}
+
+/* Стилі для EasyMDE */
+.easymde-wrapper {
+    position: relative;
+}
+
+.EasyMDEContainer {
+    border-radius: 0.5rem;
+    border: 1px solid rgb(209 213 219 / 1); /* gray-300 */
+    overflow: hidden;
+}
+
+.dark .EasyMDEContainer {
+    border-color: rgb(75 85 99 / 1); /* gray-600 */
+}
+
+.EasyMDEContainer .CodeMirror {
+    background-color: rgb(255 255 255 / 1); /* white */
+    color: rgb(17 24 39 / 1); /* gray-900 */
+    border: none;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    min-height: 120px;
+    height: auto;
+}
+
+/* Автоматичне розширення висоти для основних редакторів */
+.EasyMDEContainer .CodeMirror-scroll {
+    min-height: 120px;
+    height: auto;
+    overflow-y: hidden;
+}
+
+.EasyMDEContainer .CodeMirror-sizer {
+    min-height: 120px !important;
+}
+
+.dark .EasyMDEContainer .CodeMirror {
+    background-color: rgb(17 24 39 / 1); /* gray-900 */
+    color: rgb(243 244 246 / 1); /* gray-100 */
+}
+
+.EasyMDEContainer .CodeMirror-cursor {
+    border-left-color: rgb(var(--color-primary-600));
+}
+
+.dark .EasyMDEContainer .CodeMirror-cursor {
+    border-left-color: rgb(var(--color-primary-400));
+}
+
+.EasyMDEContainer .CodeMirror-selected {
+    background-color: rgba(var(--color-primary-200), 0.3);
+}
+
+.dark .EasyMDEContainer .CodeMirror-selected {
+    background-color: rgba(var(--color-primary-700), 0.3);
+}
+
+/* Панель інструментів */
+.EasyMDEContainer .editor-toolbar {
+    background: linear-gradient(to right, rgb(var(--gradient-primary-start)), rgb(var(--gradient-primary-end)));
+    border-bottom: 1px solid rgb(var(--color-primary-300));
+    padding: 0.5rem;
+}
+
+.dark .EasyMDEContainer .editor-toolbar {
+    border-bottom-color: rgb(var(--color-primary-600));
+}
+
+.EasyMDEContainer .editor-toolbar button {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 0.375rem;
+    border-radius: 0.375rem;
+    margin: 0 0.125rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.EasyMDEContainer .editor-toolbar button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.EasyMDEContainer .editor-toolbar button.active {
+    background-color: rgba(255, 255, 255, 0.3);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.EasyMDEContainer .editor-toolbar i.separator {
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+    margin: 0 0.5rem;
+}
+
+/* Попередній перегляд */
+.EasyMDEContainer .editor-preview,
+.EasyMDEContainer .editor-preview-side {
+    background-color: rgb(255 255 255 / 1); /* white */
+    color: rgb(17 24 39 / 1); /* gray-900 */
+    padding: 1rem;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+.dark .EasyMDEContainer .editor-preview,
+.dark .EasyMDEContainer .editor-preview-side {
+    background-color: rgb(17 24 39 / 1); /* gray-900 */
+    color: rgb(243 244 246 / 1); /* gray-100 */
+}
+
+/* Статус бар */
+.EasyMDEContainer .editor-statusbar {
+    background-color: rgb(249 250 251 / 1); /* gray-50 */
+    border-top: 1px solid rgb(var(--color-primary-200));
+    color: rgb(107 114 128 / 1); /* gray-500 */
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.dark .EasyMDEContainer .editor-statusbar {
+    background-color: rgb(31 41 55 / 1); /* gray-800 */
+    border-top-color: rgb(var(--color-primary-600));
+    color: rgb(156 163 175 / 1); /* gray-400 */
+}
+
+/* Повноекранний режим */
+.EasyMDEContainer.fullscreen {
+    z-index: 9999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0;
+}
+
+.EasyMDEContainer.fullscreen .CodeMirror {
+    height: calc(100vh - 120px) !important;
+}
+
+/* Side-by-side режим */
+.EasyMDEContainer.side-by-side .CodeMirror {
+    width: 50%;
+}
+
+.EasyMDEContainer.side-by-side .editor-preview-side {
+    width: 50%;
+    border-left: 1px solid rgb(var(--color-primary-300));
+}
+
+.dark .EasyMDEContainer.side-by-side .editor-preview-side {
+    border-left-color: rgb(var(--color-primary-600));
+}
+
+/* Адаптивність */
+@media (max-width: 768px) {
+    .EasyMDEContainer .editor-toolbar {
+        flex-wrap: wrap;
+        padding: 0.25rem;
+    }
+
+    .EasyMDEContainer .editor-toolbar button {
+        padding: 0.25rem;
+        margin: 0.125rem;
+    }
+
+    .EasyMDEContainer.side-by-side .CodeMirror,
+    .EasyMDEContainer.side-by-side .editor-preview-side {
+        width: 100%;
+    }
+
+    .EasyMDEContainer.side-by-side .editor-preview-side {
+        border-left: none;
+        border-top: 1px solid rgb(var(--color-primary-300));
+    }
+
+    .dark .EasyMDEContainer.side-by-side .editor-preview-side {
+        border-top-color: rgb(var(--color-primary-600));
+    }
+}
+
+/* Фокус стилі */
+.EasyMDEContainer:focus-within {
+    border-color: rgb(var(--color-primary-500));
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-500), 0.1);
+}
+
+.dark .EasyMDEContainer:focus-within {
+    border-color: rgb(var(--color-primary-400));
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-400), 0.1);
+}
+
+/* Компактні стилі для EasyMDE в чаті */
+.project-chat .EasyMDEContainer {
+    border-radius: 0.5rem;
+    max-height: 120px;
+}
+
+/* Компактні стилі для повідомлень в чаті */
+.project-chat .prose {
+    font-size: 0.875rem;
+    line-height: 1.3;
+}
+
+.project-chat .prose p {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.project-chat .prose h1,
+.project-chat .prose h2,
+.project-chat .prose h3,
+.project-chat .prose h4,
+.project-chat .prose h5,
+.project-chat .prose h6 {
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.project-chat .prose ul,
+.project-chat .prose ol {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.project-chat .prose li {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.project-chat .EasyMDEContainer .CodeMirror {
+    min-height: 30px;
+    max-height: 120px;
+    font-size: 0.875rem;
+    height: auto;
+}
+
+.project-chat .EasyMDEContainer .CodeMirror-scroll {
+    min-height: 30px;
+    max-height: 120px;
+    height: auto;
+    overflow-y: hidden;
+}
+
+.project-chat .EasyMDEContainer .CodeMirror-sizer {
+    min-height: 30px !important;
+}
+
+.project-chat .EasyMDEContainer .editor-toolbar {
+    padding: 0.25rem 0.5rem;
+    background: linear-gradient(to right, rgb(var(--gradient-primary-start)), rgb(var(--gradient-primary-end)));
+}
+
+.project-chat .EasyMDEContainer .editor-toolbar button {
+    padding: 0.25rem;
+    margin: 0 0.125rem;
+    font-size: 0.75rem;
+}
+
+.project-chat .EasyMDEContainer .editor-preview {
+    max-height: 60px;
+    overflow-y: auto;
+    font-size: 0.875rem;
+}
+
+/* Адаптивність для чату */
+@media (max-width: 640px) {
+    .project-chat .EasyMDEContainer .editor-toolbar {
+        flex-wrap: wrap;
+        padding: 0.25rem;
+    }
+
+    .project-chat .EasyMDEContainer .editor-toolbar button {
+        padding: 0.125rem 0.25rem;
+        margin: 0.125rem;
+        font-size: 0.625rem;
+    }
+}
+
 /* Градієнтні стилі для карток */
 .card-gradient {
     background: linear-gradient(135deg, rgb(var(--gradient-card-start)), rgb(var(--gradient-card-middle)), rgb(var(--gradient-card-end)));
@@ -509,19 +1057,78 @@ html.dark {
     background-size: 200% auto;
 }
 
-/* Градієнтні стилі для бейджів */
+/* Градієнтні стилі для бейджів технологій */
 .badge-gradient {
-    background: linear-gradient(to right, rgba(var(--gradient-badge-start), 0.8), rgba(var(--gradient-badge-middle), 0.8), rgba(var(--gradient-badge-end), 0.8));
+    background: linear-gradient(135deg, rgb(var(--gradient-primary-start)), rgb(var(--gradient-primary-end)));
     color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    background-size: 200% auto;
+    text-decoration: none;
+    border: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
 }
 
 .badge-gradient:hover {
-    background-position: right center;
+    color: white;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(var(--gradient-primary-start), 0.3);
+    transform: translateY(-1px);
+}
+
+.badge-gradient:focus {
+    color: white;
+    text-decoration: none;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--gradient-primary-start), 0.2);
+}
+
+/* Градієнтні стилі для статусів проектів */
+.status-approved {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.8), rgba(22, 163, 74, 0.8));
+    color: white;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.status-pending {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.8), rgba(245, 158, 11, 0.8));
+    color: white;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+/* Градієнтні рамки для карток */
+.card-border-gradient {
+    border: 1px solid transparent !important;
+    background-clip: padding-box, border-box !important;
+    background-origin: padding-box, border-box !important;
+    background-image:
+        linear-gradient(to bottom, rgb(255, 255, 255), rgb(255, 255, 255)),
+        linear-gradient(135deg, rgb(var(--gradient-card-start)), rgb(var(--gradient-card-middle)), rgb(var(--gradient-card-end))) !important;
+}
+
+.dark .card-border-gradient {
+    background-image:
+        linear-gradient(to bottom, rgb(31, 41, 55), rgb(31, 41, 55)),
+        linear-gradient(135deg, rgb(var(--gradient-card-start)), rgb(var(--gradient-card-middle)), rgb(var(--gradient-card-end))) !important;
+}
+
+.card-border-gradient:hover {
+    box-shadow: 0 10px 15px -3px rgba(var(--gradient-card-start), 0.1), 0 4px 6px -2px rgba(var(--gradient-card-start), 0.05);
+}
+
+/* Градієнтні рамки для контейнерів сторінок */
+.page-container-gradient {
+    border: 1px solid transparent !important;
+    background-clip: padding-box, border-box !important;
+    background-origin: padding-box, border-box !important;
+    background-image:
+        linear-gradient(to bottom, rgb(255, 255, 255), rgb(255, 255, 255)),
+        linear-gradient(135deg, rgba(var(--gradient-card-start), 0.3), rgba(var(--gradient-card-middle), 0.3), rgba(var(--gradient-card-end), 0.3)) !important;
+}
+
+.dark .page-container-gradient {
+    background-image:
+        linear-gradient(to bottom, rgb(31, 41, 55), rgb(31, 41, 55)),
+        linear-gradient(135deg, rgba(var(--gradient-card-start), 0.3), rgba(var(--gradient-card-middle), 0.3), rgba(var(--gradient-card-end), 0.3)) !important;
 }
 
 /* Стилі для елементів інтерфейсу */

@@ -7,10 +7,11 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageSent implements ShouldBroadcast
+class MessageSent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -44,6 +45,12 @@ class MessageSent implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
+        \Log::info('Broadcasting message to channel', [
+            'channel' => 'project.' . $this->projectId,
+            'message_id' => $this->message['id'] ?? 'unknown',
+            'sender_id' => $this->message['sender_id'] ?? 'unknown'
+        ]);
+
         return [
             new PrivateChannel('project.' . $this->projectId),
         ];
@@ -55,5 +62,19 @@ class MessageSent implements ShouldBroadcast
     public function broadcastAs(): string
     {
         return 'message.sent';
+    }
+
+    /**
+     * Дані для відправки клієнту
+     */
+    public function broadcastWith(): array
+    {
+        \Log::info('Broadcasting message data', [
+            'message' => $this->message
+        ]);
+
+        return [
+            'message' => $this->message
+        ];
     }
 }

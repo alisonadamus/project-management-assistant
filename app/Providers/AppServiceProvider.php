@@ -4,6 +4,7 @@ namespace Alison\ProjectManagementAssistant\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
+use Alison\ProjectManagementAssistant\Services\MarkdownService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -12,7 +13,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(MarkdownService::class, function ($app) {
+            return new MarkdownService();
+        });
     }
 
     /**

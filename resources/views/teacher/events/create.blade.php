@@ -15,7 +15,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6 page-container-gradient">
                 <form action="{{ route('teacher.events.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
@@ -99,7 +99,12 @@
                         <!-- Опис -->
                         <div class="md:col-span-2">
                             <x-label for="description" value="{{ __('Опис') }}" />
-                            <textarea id="description" name="description" rows="4" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm block mt-1 w-full">{{ old('description') }}</textarea>
+                            <x-markdown-editor
+                                name="description"
+                                :value="old('description')"
+                                placeholder="Введіть опис події (підтримується Markdown)"
+                                id="event-description-editor"
+                            />
                             @error('description')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror

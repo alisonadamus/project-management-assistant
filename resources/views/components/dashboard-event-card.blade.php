@@ -1,6 +1,6 @@
 @props(['event', 'projectsInfo'])
 
-<div class="bg-white dark:bg-gray-800 overflow-hidden shadow-md rounded-lg hover:shadow-lg transition-shadow duration-300 h-full">
+<div class="bg-white dark:bg-gray-800 overflow-hidden shadow-md rounded-lg hover:shadow-lg transition-shadow duration-300 h-full card-border-gradient">
     <!-- Event Header -->
     <div class="relative">
         @if($event->image_url)

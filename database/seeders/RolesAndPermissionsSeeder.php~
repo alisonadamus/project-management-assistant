@@ -1,0 +1,147 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
+use Alison\ProjectManagementAssistant\Models\User;
+
+class RolesAndPermissionsSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        // Reset cached roles and permissions
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Create permissions
+        $permissions = [
+            // Користувачі
+            'view users',
+            'create users',
+            'edit users',
+            'delete users',
+
+            // Проекти
+            'view projects',
+            'create projects',
+            'edit projects',
+            'delete projects',
+            'assign projects',
+
+            // Категорії
+            'view categories',
+            'create categories',
+            'edit categories',
+            'delete categories',
+
+            // Предмети
+            'view subjects',
+            'create subjects',
+            'edit subjects',
+            'delete subjects',
+
+            // Технології
+            'view technologies',
+            'create technologies',
+            'edit technologies',
+            'delete technologies',
+
+            // Події
+            'view events',
+            'create events',
+            'edit events',
+            'delete events',
+
+            // Пропозиції
+            'view offers',
+            'create offers',
+            'edit offers',
+            'delete offers',
+
+            // Керівники
+            'view supervisors',
+            'create supervisors',
+            'edit supervisors',
+            'delete supervisors',
+
+            // Адмін-панель
+            'access admin panel',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::create(['name' => $permission]);
+        }
+
+        // Створення ролей та призначення дозволів
+
+        // Роль адміністратора (може все)
+        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole->givePermissionTo(Permission::all());
+
+        // Роль студента
+        $studentRole = Role::create(['name' => 'student']);
+        $studentRole->givePermissionTo([
+            'view projects',
+            'view categories',
+            'view subjects',
+            'view technologies',
+            'view events',
+            'view offers',
+            'create offers',
+            'edit offers',
+            'delete offers',
+            'view supervisors',
+        ]);
+
+        // Роль викладача
+        $teacherRole = Role::create(['name' => 'teacher']);
+        $teacherRole->givePermissionTo([
+            'view projects',
+            'create projects',
+            'edit projects',
+            'delete projects',
+            'view categories',
+            'create categories',
+            'edit categories',
+            'delete categories',
+            'view subjects',
+            'create subjects',
+            'edit subjects',
+            'delete subjects',
+            'view technologies',
+            'create technologies',
+            'edit technologies',
+            'delete technologies',
+            'view events',
+            'create events',
+            'edit events',
+            'delete events',
+            'view offers',
+            'view supervisors',
+            'create supervisors',
+            'edit supervisors',
+            'delete supervisors',
+        ]);
+
+     /*   // Призначення ролей користувачам, які ще не мають ролей
+        // Це потрібно для користувачів, створених через фабрики в інших сідерах
+        $usersWithoutRoles = User::query()->whereDoesntHave('roles')->get();
+
+        foreach ($usersWithoutRoles as $user) {
+            // Визначаємо роль на основі домену електронної пошти
+            if (str_contains($user->email, '@student.uzhnu.edu.ua')) {
+                $user->assignRole('student');
+            } elseif (str_contains($user->email, '@uzhnu.edu.ua')) {
+                $user->assignRole('teacher');
+            } else {
+                // За замовчуванням - студент
+                $user->assignRole('student');
+            }
+        }*/
+    }
+}

@@ -1,0 +1,192 @@
+<?php
+
+namespace Alison\ProjectManagementAssistant\Http\Controllers;
+
+use Alison\ProjectManagementAssistant\Models\Message;
+use Alison\ProjectManagementAssistant\Models\Project;
+use Alison\ProjectManagementAssistant\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Broadcast;
+
+class MessageController extends Controller
+{
+    /**
+     * Отримання повідомлень для проекту
+     */
+    public function getMessages(Project $project): JsonResponse
+    {
+        $user = Auth::user();
+
+        // Перевірка доступу до проекту
+        if (!$this->canAccessProject($user, $project)) {
+            return response()->json(['error' => 'Ви не маєте доступу до цього проекту'], 403);
+        }
+
+        // Перевірка, чи є призначений студент
+        if (!$project->assigned_to) {
+            return response()->json(['error' => 'Чат недоступний для проектів без призначеного студента'], 403);
+        }
+
+        // Отримання повідомлень
+        try {
+            $messages = $project->messages()
+                ->with('sender')
+                ->orderBy('created_at', 'asc')
+                ->get()
+                ->map(function ($message) use ($user) {
+                    // Позначаємо повідомлення як прочитані, якщо вони адресовані поточному користувачу
+                    if (!$message->is_read && $message->sender_id !== $user->id) {
+                        $message->is_read = true;
+                        $message->save();
+                    }
+
+                    return [
+                        'id' => $message->id,
+                        'message' => $message->message,
+                        'sender_id' => $message->sender_id,
+                        'sender_name' => $message->sender->name,
+                        'is_mine' => $message->sender_id === $user->id,
+                        'created_at' => $message->created_at->format('Y-m-d H:i:s'),
+                        'is_read' => $message->is_read,
+                    ];
+                });
+
+            Log::info('Повідомлення завантажено для проекту: ' . $project->id, ['count' => $messages->count()]);
+        } catch (\Exception $e) {
+            Log::error('Помилка при завантаженні повідомлень: ' . $e->getMessage(), ['project_id' => $project->id]);
+            return response()->json(['error' => 'Помилка при завантаженні повідомлень', 'details' => $e->getMessage()], 500);
+        }
+
+        return response()->json(['messages' => $messages]);
+    }
+
+    /**
+     * Відправлення нового повідомлення
+     */
+    public function sendMessage(Request $request, Project $project): JsonResponse
+    {
+        $user = Auth::user();
+
+        // Перевірка доступу до проекту
+        if (!$this->canAccessProject($user, $project)) {
+            return response()->json(['error' => 'Ви не маєте доступу до цього проекту'], 403);
+        }
+
+        // Перевірка, чи є призначений студент
+        if (!$project->assigned_to) {
+            return response()->json(['error' => 'Чат недоступний для проектів без призначеного студента'], 403);
+        }
+
+        // Валідація даних
+        try {
+            $validated = $request->validate([
+                'message' => 'required|string|max:1000',
+            ]);
+        } catch (ValidationException $e) {
+            Log::warning('Помилка валідації повідомлення', ['errors' => $e->errors()]);
+            return response()->json(['error' => $e->errors()], 422);
+        }
+
+        try {
+            // Створення повідомлення
+            $message = Message::create([
+                'project_id' => $project->id,
+                'sender_id' => $user->id,
+                'message' => $validated['message'],
+                'is_read' => false,
+            ]);
+
+            // Завантаження відправника
+            $message->load('sender');
+
+            // Підготовка даних для відповіді
+            $messageData = [
+                'id' => $message->id,
+                'message' => $message->message,
+                'sender_id' => $message->sender_id,
+                'sender_name' => $message->sender->name,
+                'is_mine' => true,
+                'created_at' => $message->created_at->format('Y-m-d H:i:s'),
+                'is_read' => $message->is_read,
+            ];
+
+            // Трансляція події
+            try {
+                broadcast(new \Alison\ProjectManagementAssistant\Events\NewMessage($message))->toOthers();
+                Log::info('Повідомлення успішно транслювалося', ['message_id' => $message->id]);
+            } catch (\Exception $e) {
+                Log::error('Помилка трансляції повідомлення: ' . $e->getMessage(), ['message_id' => $message->id]);
+                // Продовжуємо виконання, оскільки повідомлення вже збережено
+            }
+
+            Log::info('Повідомлення успішно створено', ['message_id' => $message->id, 'project_id' => $project->id]);
+        } catch (\Exception $e) {
+            Log::error('Помилка створення повідомлення: ' . $e->getMessage(), ['project_id' => $project->id]);
+            return response()->json(['error' => 'Помилка створення повідомлення', 'details' => $e->getMessage()], 500);
+        }
+
+        return response()->json(['message' => $messageData]);
+    }
+
+    /**
+     * Позначення повідомлень як прочитаних
+     */
+    public function markAsRead(Project $project): JsonResponse
+    {
+        $user = Auth::user();
+
+        // Перевірка доступу до проекту
+        if (!$this->canAccessProject($user, $project)) {
+            return response()->json(['error' => 'Ви не маєте доступу до цього проекту'], 403);
+        }
+
+        // Позначаємо всі повідомлення, які не від поточного користувача, як прочитані
+        try {
+            $updatedCount = $project->messages()
+                ->where('sender_id', '!=', $user->id)
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+
+            Log::info('Повідомлення позначені як прочитані', [
+                'project_id' => $project->id,
+                'user_id' => $user->id,
+                'updated_count' => $updatedCount
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Помилка при позначенні повідомлень як прочитаних: ' . $e->getMessage(), [
+                'project_id' => $project->id
+            ]);
+            return response()->json(['error' => 'Помилка при позначенні повідомлень як прочитаних'], 500);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Перевірка доступу до проекту
+     */
+    private function canAccessProject(User $user, Project $project): bool
+    {
+        // Адміністратор має доступ до всіх проектів
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        // Викладач повинен бути керівником проекту
+        if ($user->hasRole('teacher')) {
+            return $project->supervisor && $project->supervisor->user_id == $user->id;
+        }
+
+        // Студент повинен бути призначений до проекту
+        if ($user->hasRole('student')) {
+            return $project->assigned_to == $user->id;
+        }
+
+        return false;
+    }
+}

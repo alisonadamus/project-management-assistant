@@ -3,8 +3,10 @@
 namespace Alison\ProjectManagementAssistant\Http\Controllers;
 
 use Alison\ProjectManagementAssistant\Events\MessageSent;
+use Alison\ProjectManagementAssistant\Events\MessagesRead;
 use Alison\ProjectManagementAssistant\Models\Message;
 use Alison\ProjectManagementAssistant\Models\Project;
+use Alison\ProjectManagementAssistant\Notifications\NewChatMessageNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -33,8 +35,9 @@ class MessageController extends Controller
                     return [
                         'id' => $message->id,
                         'message' => $message->message,
+                        'message_html' => $message->message_html ?? $message->message,
                         'sender_id' => $message->sender_id,
-                        'sender_name' => $message->sender->name,
+                        'sender_name' => $message->sender->full_name,
                         'is_read' => $message->is_read,
                         'created_at' => $message->created_at->format('Y-m-d H:i:s'),
                         'is_mine' => $message->sender_id === Auth::id(),
@@ -73,15 +76,30 @@ class MessageController extends Controller
         $messageData = [
             'id' => $message->id,
             'message' => $message->message,
+            'message_html' => $message->message_html ?? $message->message,
             'sender_id' => $message->sender_id,
-            'sender_name' => $message->sender->name,
+            'sender_name' => $message->sender->full_name,
             'is_read' => $message->is_read,
             'created_at' => $message->created_at->format('Y-m-d H:i:s'),
             'is_mine' => $message->sender_id === Auth::id(),
         ];
 
-        // Відправлення події для WebSocket
-        broadcast(new MessageSent($project->id, $messageData))->toOthers();
+        // Відправлення події для WebSocket (тільки якщо не в тестовому середовищі)
+        if (!app()->environment('testing')) {
+            \Log::info('Sending message via WebSocket', [
+                'project_id' => $project->id,
+                'message_id' => $message->id,
+                'sender_id' => $message->sender_id,
+                'broadcast_connection' => config('broadcasting.default')
+            ]);
+
+            broadcast(new MessageSent($project->id, $messageData));
+
+            \Log::info('Message broadcast completed');
+        }
+
+        // Відправлення email повідомлення іншому учаснику чату
+        $this->sendChatNotification($message, $project);
 
         // Очищення кешу повідомлень для цього проекту
         $this->clearProjectMessagesCache($project->id);
@@ -101,21 +119,71 @@ class MessageController extends Controller
         $messageIds = $request->input('message_ids', []);
 
         // Позначення повідомлень як прочитаних
-        Message::whereIn('id', $messageIds)
+        $updatedCount = Message::whereIn('id', $messageIds)
             ->where('project_id', $project->id)
             ->where('sender_id', '!=', Auth::id())
             ->update(['is_read' => true]);
 
+        // Відправлення події про прочитання повідомлень (тільки якщо є оновлені повідомлення)
+        if ($updatedCount > 0 && !app()->environment('testing')) {
+            \Log::info('Broadcasting messages read status', [
+                'project_id' => $project->id,
+                'message_ids' => $messageIds,
+                'user_id' => Auth::id(),
+                'updated_count' => $updatedCount
+            ]);
+
+            broadcast(new MessagesRead($project->id, $messageIds, Auth::id()));
+        }
+
         // Очищення кешу повідомлень для цього проекту
         $this->clearProjectMessagesCache($project->id);
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'updated_count' => $updatedCount
+        ]);
+    }
+
+    /**
+     * Відправлення email повідомлення про нове повідомлення в чаті
+     */
+    private function sendChatNotification(Message $message, Project $project): void
+    {
+        try {
+            // Завантажуємо необхідні зв'язки
+            $project->load(['supervisor.user', 'assignedTo']);
+
+            // Визначаємо отримувача повідомлення (не відправника)
+            $recipient = null;
+            $currentUserId = Auth::id();
+
+            if ($project->supervisor && $project->supervisor->user_id !== $currentUserId) {
+                // Якщо відправник не керівник, то надсилаємо керівнику
+                $recipient = $project->supervisor->user;
+            } elseif ($project->assignedTo && $project->assignedTo->id !== $currentUserId) {
+                // Якщо відправник не студент, то надсилаємо студенту
+                $recipient = $project->assignedTo;
+            }
+
+            // Відправляємо повідомлення, якщо є отримувач
+            if ($recipient) {
+                $recipient->notify(new NewChatMessageNotification($message));
+            }
+        } catch (\Exception $e) {
+            // Логуємо помилку, але не зупиняємо виконання
+            \Log::error("Помилка відправки повідомлення про новий чат", [
+                'message_id' => $message->id,
+                'project_id' => $project->id,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     /**
      * Очищення кешу повідомлень проекту
      */
-    private function clearProjectMessagesCache(int $projectId): void
+    private function clearProjectMessagesCache(string $projectId): void
     {
         Cache::forget("project_{$projectId}_messages");
     }

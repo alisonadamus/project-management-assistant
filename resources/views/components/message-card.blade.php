@@ -10,11 +10,11 @@
                     @if($message->sender->profile_photo_path)
                         <img class="h-8 w-8 rounded-full object-cover"
                              src="{{ $message->sender->profile_photo_url }}"
-                             alt="{{ $message->sender->name }}">
+                             alt="{{ $message->sender->full_name }}">
                     @else
                         <div class="h-8 w-8 rounded-full card-gradient flex items-center justify-center">
                             <span class="text-sm font-medium text-white">
-                                {{ substr($message->sender->name, 0, 1) }}
+                                {{ substr($message->sender->full_name, 0, 1) }}
                             </span>
                         </div>
                     @endif
@@ -23,7 +23,7 @@
                 <!-- Sender Info -->
                 <div>
                     <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {{ $message->sender->name }}
+                        {{ $message->sender->full_name }}
                     </p>
                     <p class="text-xs text-gray-500 dark:text-gray-400">
                         {{ $message->created_at->diffForHumans() }}
@@ -61,7 +61,7 @@
         <!-- Message Text -->
         <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-4">
             <p class="text-sm text-gray-900 dark:text-gray-100 leading-relaxed">
-                {{ Str::limit($message->message, 150) }}
+                {{ $message->message_preview }}
             </p>
         </div>
 

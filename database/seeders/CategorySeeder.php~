@@ -1,0 +1,69 @@
+<?php
+
+namespace Database\Seeders;
+
+use Alison\ProjectManagementAssistant\Models\Category;
+use Alison\ProjectManagementAssistant\Models\Subject;
+use Illuminate\Database\Seeder;
+
+class CategorySeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        Category::query()->insert([
+            [
+                'name' => 'Навчальна практика',
+                'freezing_period' => 3,
+                'course_number' => 2,
+                'period' => 14,
+            ],
+            [
+                'name' => 'Курсова робота',
+                'freezing_period' => 5,
+                'course_number' => 2,
+                'period' => 14,
+            ],
+            [
+                'name' => 'Навчальна практика',
+                'freezing_period' => 3,
+                'course_number' => 3,
+                'period' => 21,
+            ],
+            [
+                'name' => 'Курсовий проект',
+                'freezing_period' => 5,
+                'course_number' => 3,
+                'period' => 21,
+            ],
+            [
+                'name' => 'Виробнича практика',
+                'freezing_period' => 3,
+                'course_number' => 4,
+                'period' => 35,
+            ],
+            [
+                'name' => 'Переддипломна практика',
+                'freezing_period' => 5,
+                'course_number' => 4,
+                'period' => 35,
+            ],
+            [
+                'name' => 'Дипломний проект',
+                'freezing_period' => 5,
+                'course_number' => 4,
+                'period' => 35,
+            ]
+        ]);
+
+        $categories = Category::all();
+        $subjects = Subject::all();
+
+        foreach ($categories as $category) {
+            $randomSubjects = $subjects->random(rand(1, 3));
+            $category->subjects()->attach($randomSubjects);
+        }
+    }
+}

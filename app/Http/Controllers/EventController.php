@@ -246,10 +246,11 @@ class EventController extends Controller
 
             $event = Cache::remember($cacheKey, $cacheDuration, function () use ($event) {
                 return $event->load([
-                    'category', 
-                    'supervisors.user', 
+                    'category',
+                    'supervisors.user',
                     'projects.technologies',
-                    'projects.assignedTo'
+                    'projects.assignedTo',
+                    'subevents'
                 ]);
             });
 

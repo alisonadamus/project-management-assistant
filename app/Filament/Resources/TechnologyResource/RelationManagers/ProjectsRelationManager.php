@@ -5,6 +5,7 @@ namespace Alison\ProjectManagementAssistant\Filament\Resources\TechnologyResourc
 use Alison\ProjectManagementAssistant\Models\Project;
 use Alison\ProjectManagementAssistant\Models\Event;
 use Alison\ProjectManagementAssistant\Models\Supervisor;
+use Alison\ProjectManagementAssistant\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -45,7 +46,7 @@ class ProjectsRelationManager extends RelationManager
                 Forms\Components\Select::make('supervisor_id')
                     ->label('Керівник')
                     ->relationship('supervisor', 'id')
-                    ->getOptionLabelFromRecordUsing(fn (Supervisor $record) => $record->user->name)
+                    ->getOptionLabelFromRecordUsing(fn (Supervisor $record) => $record->user->full_name)
                     ->searchable()
                     ->preload(),
 
@@ -70,10 +71,10 @@ class ProjectsRelationManager extends RelationManager
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('supervisor.user.name')
+                Tables\Columns\TextColumn::make('supervisor.user.full_name')
                     ->label('Керівник')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->getStateUsing(fn ($record) => $record->supervisor?->user?->full_name),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('event')
@@ -84,7 +85,8 @@ class ProjectsRelationManager extends RelationManager
 
                 Tables\Filters\SelectFilter::make('supervisor')
                     ->label('Керівник')
-                    ->relationship('supervisor.user', 'name')
+                    ->relationship('supervisor.user', 'id')
+                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->full_name)
                     ->searchable()
                     ->preload(),
             ])

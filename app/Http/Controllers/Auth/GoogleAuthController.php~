@@ -1,0 +1,129 @@
+<?php
+
+namespace Alison\ProjectManagementAssistant\Http\Controllers\Auth;
+
+use Alison\ProjectManagementAssistant\Http\Controllers\Controller;
+use Alison\ProjectManagementAssistant\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
+
+class GoogleAuthController extends Controller
+{
+    /**
+     * Перенаправлення користувача на сторінку авторизації Google.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    /**
+     * Обробка відповіді від Google після авторизації.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+            
+            // Перевірка домену електронної пошти
+            $email = $googleUser->getEmail();
+            $allowedDomains = ['student.uzhnu.edu.ua', 'uzhnu.edu.ua'];
+            $isAllowedDomain = false;
+            
+            foreach ($allowedDomains as $domain) {
+                if (Str::endsWith($email, '@' . $domain)) {
+                    $isAllowedDomain = true;
+                    break;
+                }
+            }
+            
+            if (!$isAllowedDomain) {
+                return redirect()->route('login')
+                    ->withErrors(['email' => 'Дозволена реєстрація лише з доменами @student.uzhnu.edu.ua або @uzhnu.edu.ua']);
+            }
+            
+            // Пошук або створення користувача
+            $user = User::where('google_id', $googleUser->getId())->orWhere('email', $email)->first();
+            
+            if (!$user) {
+                // Розбір імені з email
+                $nameParts = $this->extractNameFromEmail($email);
+                
+                // Визначення ролі на основі домену
+                $role = Str::endsWith($email, '@student.uzhnu.edu.ua') ? 'student' : 'teacher';
+                
+                // Створення нового користувача
+                $user = User::create([
+                    'name' => $googleUser->getNickname() ?? Str::before($email, '@'),
+                    'email' => $email,
+                    'google_id' => $googleUser->getId(),
+                    'password' => Hash::make(Str::random(16)),
+                    'first_name' => $nameParts['first_name'] ?? $googleUser->user['given_name'] ?? '',
+                    'last_name' => $nameParts['last_name'] ?? $googleUser->user['family_name'] ?? '',
+                    'middle_name' => $nameParts['middle_name'] ?? null,
+                    'avatar' => $googleUser->getAvatar(),
+                    'email_verified_at' => now(),
+                ]);
+                
+                // Призначення ролі
+                $user->assignRole($role);
+            } else {
+                // Оновлення Google ID, якщо користувач вже існує, але не має Google ID
+                if (empty($user->google_id)) {
+                    $user->update([
+                        'google_id' => $googleUser->getId(),
+                        'avatar' => $googleUser->getAvatar(),
+                    ]);
+                }
+            }
+            
+            // Авторизація користувача
+            Auth::login($user);
+            
+            return redirect()->intended(route('dashboard'));
+            
+        } catch (\Exception $e) {
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Помилка авторизації через Google: ' . $e->getMessage()]);
+        }
+    }
+    
+    /**
+     * Витягує ім'я, прізвище та по батькові з email адреси.
+     *
+     * @param string $email
+     * @return array
+     */
+    private function extractNameFromEmail(string $email): array
+    {
+        $username = Str::before($email, '@');
+        $parts = explode('.', $username);
+        
+        $result = [
+            'first_name' => '',
+            'last_name' => '',
+            'middle_name' => null,
+        ];
+        
+        if (count($parts) >= 2) {
+            $result['first_name'] = ucfirst($parts[0]);
+            $result['last_name'] = ucfirst($parts[1]);
+            
+            if (count($parts) >= 3) {
+                $result['middle_name'] = ucfirst($parts[2]);
+            }
+        } else {
+            // Якщо формат не відповідає очікуваному, використовуємо весь username як ім'я
+            $result['first_name'] = ucfirst($username);
+        }
+        
+        return $result;
+    }
+}

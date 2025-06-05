@@ -50,10 +50,13 @@ class OfferApprovedNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('Вашу заявку затверджено')
-            ->greeting('Вітаємо, ' . $notifiable->name . '!')
+            ->subject('Вашу заявку затверджено - ' . $this->project->name)
+            ->greeting('Вітаємо, ' . $notifiable->full_name . '!')
             ->line('Вашу заявку на участь у проекті **' . $this->project->name . '** було успішно затверджено.')
-            ->line('**Керівник проекту:** ' . $this->project->supervisor->user->name)
+            ->line('Ви тепер призначені до цього проекту!')
+            ->line('**Керівник проекту:** ' . $this->project->supervisor->user->full_name)
+            ->line('**Email керівника:** ' . $this->project->supervisor->user->email)
+            ->line('**Подія:** ' . $this->project->event->name)
             ->action('Переглянути проект', route('projects.show', $this->project))
             ->line('Дякуємо за участь у нашому проекті!');
     }
@@ -70,6 +73,9 @@ class OfferApprovedNotification extends Notification implements ShouldQueue
             'project_id' => $this->project->id,
             'project_name' => $this->project->name,
             'supervisor_name' => $this->project->supervisor->user->name,
+            'supervisor_email' => $this->project->supervisor->user->email,
+            'event_name' => $this->project->event->name,
+            'type' => 'offer_approved',
         ];
     }
 }

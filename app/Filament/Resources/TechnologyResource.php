@@ -55,7 +55,7 @@ class TechnologyResource extends Resource
 
                 Forms\Components\Section::make('Додаткова інформація')
                     ->schema([
-                        Forms\Components\Textarea::make('description')
+                        Forms\Components\MarkdownEditor::make('description')
                             ->label('Опис')
                             ->maxLength(65535)
                             ->columnSpanFull(),

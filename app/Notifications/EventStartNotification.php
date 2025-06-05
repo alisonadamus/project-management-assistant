@@ -51,11 +51,12 @@ class EventStartNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Початок події: ' . $this->event->name)
-            ->line('Шановний(а) ' . $notifiable->name . ',')
-            ->line('Повідомляємо вас, що сьогодні починається подія: ' . $this->event->name)
+            ->line('Шановний(а) ' . $notifiable->full_name . ',')
+            ->line('Повідомляємо вас, що сьогодні починається подія: **' . $this->event->name . '**')
             ->line('Опис: ' . ($this->event->description ?? 'Опис відсутній'))
             ->line('Дата початку: ' . $this->event->start_date->format('d.m.Y H:i'))
             ->line('Дата закінчення: ' . $this->event->end_date->format('d.m.Y H:i'))
+            ->action('Переглянути подію', route('events.show', $this->event))
             ->line('Дякуємо, що ви з нами!');
     }
 
@@ -72,6 +73,7 @@ class EventStartNotification extends Notification implements ShouldQueue
             'event_name' => $this->event->name,
             'start_date' => $this->event->start_date,
             'end_date' => $this->event->end_date,
+            'type' => 'event_start',
         ];
     }
 }

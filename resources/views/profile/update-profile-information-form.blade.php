@@ -28,7 +28,7 @@
 
                 <!-- Current Profile Photo -->
                 <div class="mt-2" x-show="! photoPreview">
-                    <img src="{{ $this->user->profile_photo_url }}" alt="{{ $this->user->name }}" class="rounded-full size-20 object-cover">
+                    <img src="{{ $this->user->profile_photo_url }}" alt="{{ $this->user->full_name }}" class="rounded-full size-20 object-cover">
                 </div>
 
                 <!-- New Profile Photo Preview -->
@@ -51,13 +51,6 @@
                 <x-input-error for="photo" class="mt-2" />
             </div>
         @endif
-
-        <!-- Name -->
-        <div class="col-span-6 sm:col-span-4">
-            <x-label for="name" value="{{ __('Логін') }}" />
-            <x-input id="name" type="text" class="mt-1 block w-full" wire:model="state.name" required autocomplete="name" />
-            <x-input-error for="name" class="mt-2" />
-        </div>
 
         <!-- First Name -->
         <div class="col-span-6 sm:col-span-4">
@@ -98,24 +91,16 @@
         <!-- Description -->
         <div class="col-span-6 sm:col-span-4">
             <x-label for="description" value="{{ __('Опис') }}" />
-            <textarea id="description" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm block mt-1 w-full" wire:model="state.description" rows="3"></textarea>
+            <div wire:ignore>
+                <textarea
+                    id="user-description-editor"
+                    name="description"
+                    placeholder="Розкажіть про себе"
+                    class="hidden"
+                >{{ $this->state['description'] ?? '' }}</textarea>
+            </div>
             <x-input-error for="description" class="mt-2" />
         </div>
-
-        <!-- Course Number (для студентів) -->
-        @if (Auth::user()->hasRole('student'))
-        <div class="col-span-6 sm:col-span-4">
-            <x-label for="course_number" value="{{ __('Курс') }}" />
-            <select id="course_number" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm block mt-1 w-full" wire:model="state.course_number" required>
-                <option value="">{{ __('Виберіть курс') }}</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
-            <x-input-error for="course_number" class="mt-2" />
-        </div>
-        @endif
 
         <!-- Email -->
         <div class="col-span-6 sm:col-span-4">
@@ -151,3 +136,64 @@
         </x-button>
     </x-slot>
 </x-form-section>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Ініціалізуємо EasyMDE для опису користувача
+    const textarea = document.getElementById('user-description-editor');
+    if (textarea && typeof EasyMDE !== 'undefined') {
+        const easymde = new EasyMDE({
+            element: textarea,
+            placeholder: 'Розкажіть про себе',
+            spellChecker: false,
+            autofocus: false,
+            autosave: {
+                enabled: false
+            },
+            status: ['lines', 'words', 'cursor'],
+            toolbar: [
+                'bold', 'italic', 'strikethrough', '|',
+                'heading-1', 'heading-2', 'heading-3', '|',
+                'quote', 'unordered-list', 'ordered-list', '|',
+                'link', 'image', '|',
+                'code', 'horizontal-rule', '|',
+                'preview', 'side-by-side', 'fullscreen', '|',
+                'guide'
+            ],
+            previewClass: ['prose', 'prose-sm', 'max-w-none', 'dark:prose-invert'],
+            renderingConfig: {
+                singleLineBreaks: false,
+                codeSyntaxHighlighting: true,
+            }
+        });
+
+        // Зберігаємо посилання на інстанс
+        textarea.easymdeInstance = easymde;
+
+        // Синхронізуємо з Livewire
+        easymde.codemirror.on('change', function() {
+            const content = easymde.value();
+            @this.set('state.description', content);
+        });
+
+        // Слухаємо зміни теми
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    if (easymde.codemirror) {
+                        easymde.codemirror.setOption('theme', isDark ? 'monokai' : 'default');
+                    }
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+});
+</script>
+@endpush

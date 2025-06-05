@@ -1,26 +1,30 @@
 @props(['offer'])
 
-<div class="bg-white dark:bg-gray-800 overflow-hidden shadow-md rounded-lg hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
+<div class="bg-white dark:bg-gray-800 overflow-hidden shadow-md rounded-lg hover:shadow-lg transition-shadow duration-300 flex flex-col h-full card-border-gradient">
     <div class="p-4 flex-grow">
-        <div class="flex justify-between items-start mb-2">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ $offer->project->name }}</h3>
+        <!-- Дата заявки -->
+        <div class="mb-2">
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                 {{ $offer->created_at->format('d.m.Y') }}
             </span>
         </div>
 
+        <!-- Назва проекту -->
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">{{ $offer->project->name }}</h3>
+
         @if($offer->project->technologies->isNotEmpty())
             <div class="mt-2 flex flex-wrap gap-1">
                 @foreach($offer->project->technologies as $tech)
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    <a href="{{ route('technologies.show', $tech) }}"
+                       class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium badge-gradient hover:shadow-md transition-all duration-200 transform hover:scale-105">
                         {{ $tech->name }}
-                    </span>
+                    </a>
                 @endforeach
             </div>
         @endif
 
         <div class="mt-4 text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
-            {{ Str::limit($offer->project->body, 150) ?? 'Немає опису' }}
+            {{ $offer->project->body_preview ?? 'Немає опису' }}
         </div>
 
         <div class="mt-4">
@@ -29,7 +33,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <span>Керівник: {{ $offer->project->supervisor->user->name }}</span>
+                    <span>Керівник: {{ $offer->project->supervisor->user->full_name }}</span>
                 </div>
             @endif
 
@@ -38,7 +42,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <span>Студент: {{ $offer->student->name }}</span>
+                    <span>Студент: {{ $offer->student->full_name }}</span>
                 </div>
             @endif
 
@@ -54,7 +58,7 @@
     </div>
 
     <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700 flex justify-between items-center">
-        <a href="{{ route('projects.show', $offer->project) }}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md text-white btn-gradient hover:shadow-md focus:outline-none focus:border-primary-700 focus:ring focus:ring-primary-200 transition ease-in-out duration-150">
+        <a href="{{ route('projects.show', $offer->project) }}" class="inline-flex items-center px-4 py-2 btn-gradient border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150">
             Деталі проекту
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />

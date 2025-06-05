@@ -9,7 +9,7 @@
 @endphp
 
 @if($canShowChat && $canAccessChat)
-    <div class="p-6 border-t border-gray-200 dark:border-gray-700"
+    <div class="project-chat p-6 border-t border-gray-200 dark:border-gray-700"
          x-data="projectChat('{{ $project->id }}', '{{ auth()->id() }}')"
          x-init="init()">
         <style>
@@ -99,9 +99,9 @@
                                     <span class="ml-2 h-2 w-2 rounded-full" style="background: linear-gradient(to right, rgb(var(--gradient-button-start)), rgb(var(--gradient-button-end)))"></span>
                                 </template>
                             </div>
-                            <div class="max-w-3/4 px-4 py-2 rounded-lg shadow-sm relative"
+                            <div class="max-w-3/4 px-3 py-1.5 rounded-lg shadow-sm relative"
                                  :class="message.is_mine ? 'message-mine' : 'message-other'">
-                                <p x-text="message.message" class="text-sm whitespace-pre-wrap break-words"></p>
+                                <div x-html="message.message_html || message.message" class="text-sm whitespace-pre-wrap break-words prose prose-sm max-w-none dark:prose-invert leading-tight"></div>
 
                                 <!-- Статус прочитання для останнього повідомлення -->
                                 <template x-if="message.is_mine && isLastMessageFromUser(message.id)">
@@ -122,25 +122,32 @@
         </div>
 
         <!-- Форма відправки повідомлення -->
-        <form @submit.prevent="sendMessage" class="flex items-center">
-            <div class="flex-grow mr-2 relative">
-                <input
-                    type="text"
+        <form @submit.prevent="sendMessage" class="space-y-3">
+            <div class="relative">
+                <textarea
+                    x-ref="messageEditor"
                     x-model="newMessage"
                     placeholder="Введіть повідомлення..."
-                    class="w-full input-gradient rounded-md border-transparent focus:border-transparent focus:ring focus:ring-primary-200 dark:focus:ring-primary-800 dark:bg-gray-800 dark:text-gray-200"
+                    class="hidden"
                     maxlength="1000"
-                    @keydown.enter.exact.prevent="sendMessage"
-                />
+                ></textarea>
             </div>
-            <button type="submit"
-                    class="inline-flex items-center px-4 py-2 btn-gradient border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150"
-                    :disabled="!newMessage.trim()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-                Надіслати
-            </button>
+            <div class="flex justify-between items-center">
+                <div class="text-xs text-gray-500 dark:text-gray-400">
+                    <kbd class="px-1 py-0.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">Ctrl</kbd>
+                    +
+                    <kbd class="px-1 py-0.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">Enter</kbd>
+                    для відправки
+                </div>
+                <button type="submit"
+                        class="inline-flex items-center px-4 py-2 btn-gradient border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                        :disabled="!canSendMessage()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                    Надіслати
+                </button>
+            </div>
         </form>
     </div>
 
@@ -154,10 +161,28 @@
                 newMessage: '',
                 loading: true,
                 unreadMessages: [],
+                pollingInterval: null,
 
                 init() {
+                    console.log('Ініціалізація чату для проекту:', this.projectId, 'користувач:', this.userId);
+
                     this.fetchMessages();
-                    this.listenForMessages();
+
+                    // Перевіряємо доступність Echo перед підключенням
+                    if (typeof window.Echo !== 'undefined') {
+                        this.listenForMessages();
+                    } else {
+                        console.error('Echo не доступний. Перевірте підключення WebSocket.');
+                        // Можна додати fallback на polling
+                        this.startPolling();
+                    }
+
+                    // Ініціалізуємо редактор після завантаження компонента з затримкою
+                    this.$nextTick(() => {
+                        setTimeout(() => {
+                            this.initializeMessageEditor();
+                        }, 100);
+                    });
 
                     // Прокручування до останнього повідомлення при зміні messages
                     this.$watch('messages', () => {
@@ -166,6 +191,152 @@
                             this.markMessagesAsRead();
                         });
                     });
+                },
+
+                initializeMessageEditor() {
+                    // Ініціалізуємо EasyMDE для повідомлень
+                    const textarea = this.$refs.messageEditor;
+
+
+
+                    if (!textarea) {
+                        console.error('Textarea not found for chat editor');
+                        return;
+                    }
+
+                    // Якщо EasyMDE недоступний, показуємо звичайне textarea
+                    if (typeof EasyMDE === 'undefined') {
+                        console.warn('EasyMDE not loaded, using regular textarea');
+                        textarea.classList.remove('hidden');
+                        textarea.classList.add('w-full', 'rounded-md', 'border-gray-300', 'dark:border-gray-700', 'dark:bg-gray-900', 'dark:text-gray-300', 'focus:border-primary-500', 'dark:focus:border-primary-600', 'focus:ring-primary-500', 'dark:focus:ring-primary-600');
+                        textarea.rows = 3;
+
+                        // Додаємо обробник для Ctrl+Enter
+                        textarea.addEventListener('keydown', (e) => {
+                            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                                e.preventDefault();
+                                this.sendMessage();
+                            }
+                        });
+
+                        // Автоматичне розширення для звичайного textarea
+                        function autoResizeTextarea() {
+                            textarea.style.height = 'auto';
+                            const newHeight = Math.max(30, Math.min(120, textarea.scrollHeight));
+                            textarea.style.height = newHeight + 'px';
+                        }
+
+                        textarea.addEventListener('input', autoResizeTextarea);
+                        autoResizeTextarea();
+
+                        return;
+                    }
+
+                    if (!textarea.easymdeInstance) {
+                        const easymde = new EasyMDE({
+                            element: textarea,
+                            placeholder: 'Введіть повідомлення...',
+                            spellChecker: false,
+                            autofocus: false,
+                            autosave: {
+                                enabled: false
+                            },
+                            status: false, // Вимикаємо статус бар для компактності
+                            toolbar: [
+                                'bold', 'italic', '|',
+                                'quote', 'unordered-list', 'ordered-list', '|',
+                                'link', 'code', '|',
+                                'preview'
+                            ],
+                            previewClass: ['prose', 'prose-sm', 'max-w-none', 'dark:prose-invert'],
+                            renderingConfig: {
+                                singleLineBreaks: true, // Для чату дозволяємо одинарні переноси
+                                codeSyntaxHighlighting: true,
+                            },
+                            shortcuts: {
+                                togglePreview: 'Cmd-P'
+                            }
+                        });
+
+                        // Зберігаємо посилання на інстанс
+                        textarea.easymdeInstance = easymde;
+
+                        // Автоматичне розширення висоти для чату
+                        function autoResizeChat() {
+                            const codeMirror = easymde.codemirror;
+                            const wrapper = codeMirror.getWrapperElement();
+                            const scrollElement = wrapper.querySelector('.CodeMirror-scroll');
+                            const sizerElement = wrapper.querySelector('.CodeMirror-sizer');
+
+                            if (scrollElement && sizerElement) {
+                                const contentHeight = sizerElement.offsetHeight;
+                                const minHeight = 30;
+                                const maxHeight = 120;
+                                const newHeight = Math.max(minHeight, Math.min(maxHeight, contentHeight + 10));
+
+                                scrollElement.style.height = newHeight + 'px';
+                                scrollElement.style.maxHeight = maxHeight + 'px';
+                                scrollElement.style.overflowY = newHeight >= maxHeight ? 'auto' : 'hidden';
+                                wrapper.style.height = 'auto';
+                            }
+                        }
+
+                        // Викликаємо автоматичне розширення при зміні контенту
+                        easymde.codemirror.on('change', autoResizeChat);
+                        easymde.codemirror.on('update', autoResizeChat);
+
+                        // Початкове розширення
+                        setTimeout(autoResizeChat, 100);
+
+                        // Синхронізуємо з Alpine.js (двостороння синхронізація)
+                        easymde.codemirror.on('change', () => {
+                            this.newMessage = easymde.value();
+                        });
+
+                        // Слухаємо зміни в Alpine.js і оновлюємо EasyMDE
+                        this.$watch('newMessage', (newValue) => {
+                            if (easymde.value() !== newValue) {
+                                easymde.value(newValue);
+                            }
+                        });
+
+                        // Додаємо обробник для Ctrl+Enter для відправки
+                        easymde.codemirror.setOption('extraKeys', {
+                            'Ctrl-Enter': () => {
+                                this.sendMessage();
+                            },
+                            'Cmd-Enter': () => {
+                                this.sendMessage();
+                            }
+                        });
+
+                        // Слухаємо зміни теми
+                        const observer = new MutationObserver((mutations) => {
+                            mutations.forEach((mutation) => {
+                                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                                    const isDark = document.documentElement.classList.contains('dark');
+                                    if (easymde.codemirror) {
+                                        easymde.codemirror.setOption('theme', isDark ? 'monokai' : 'default');
+                                    }
+                                }
+                            });
+                        });
+
+                        observer.observe(document.documentElement, {
+                            attributes: true,
+                            attributeFilter: ['class']
+                        });
+                    }
+                },
+
+                canSendMessage() {
+                    // Перевіряємо як Alpine.js значення, так і EasyMDE
+                    let message = this.newMessage;
+                    const textarea = this.$refs.messageEditor;
+                    if (textarea && textarea.easymdeInstance) {
+                        message = textarea.easymdeInstance.value();
+                    }
+                    return message && message.trim().length > 0;
                 },
 
                 fetchMessages() {
@@ -187,7 +358,18 @@
                 },
 
                 sendMessage() {
-                    if (!this.newMessage.trim()) return;
+                    // Отримуємо актуальне значення з EasyMDE
+                    const textarea = this.$refs.messageEditor;
+                    if (textarea && textarea.easymdeInstance) {
+                        this.newMessage = textarea.easymdeInstance.value();
+                    }
+
+                    if (!this.newMessage.trim()) {
+                        return;
+                    }
+
+                    const messageText = this.newMessage;
+                    console.log('Відправка повідомлення:', messageText);
 
                     fetch(`/projects/${this.projectId}/messages`, {
                         method: 'POST',
@@ -195,61 +377,113 @@
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
-                        body: JSON.stringify({ message: this.newMessage })
+                        body: JSON.stringify({ message: messageText })
                     })
                     .then(response => response.json())
                     .then(data => {
-                        // Оновлюємо список повідомлень з сервера, щоб отримати останні зміни
-                        this.fetchMessages();
+                        console.log('Повідомлення відправлено успішно:', data);
+
+                        // Додаємо повідомлення локально, якщо його ще немає
+                        // (WebSocket може не спрацювати миттєво)
+                        if (data.message && !this.messages.some(m => m.id === data.message.id)) {
+                            this.messages.push(data.message);
+                            this.$nextTick(() => {
+                                this.scrollToBottom();
+                            });
+                        }
+
+                        // Очищаємо поле вводу
                         this.newMessage = '';
-                        this.scrollToBottom();
+
+                        // Очищаємо EasyMDE редактор
+                        const textarea = this.$refs.messageEditor;
+                        if (textarea && textarea.easymdeInstance) {
+                            textarea.easymdeInstance.value('');
+                            // Викликаємо автоматичне розширення після очищення
+                            setTimeout(() => {
+                                const codeMirror = textarea.easymdeInstance.codemirror;
+                                const wrapper = codeMirror.getWrapperElement();
+                                const scrollElement = wrapper.querySelector('.CodeMirror-scroll');
+                                if (scrollElement) {
+                                    scrollElement.style.height = '30px';
+                                    scrollElement.style.overflowY = 'hidden';
+                                }
+                            }, 50);
+                        }
                     })
                     .catch(error => {
                         console.error('Помилка відправки повідомлення:', error);
+                        alert('Помилка відправки повідомлення. Спробуйте ще раз.');
                     });
                 },
 
                 listenForMessages() {
+                    console.log('Підключення до WebSocket каналу:', `project.${this.projectId}`);
+
                     window.Echo.private(`project.${this.projectId}`)
                         .listen('.message.sent', (data) => {
+                            console.log('Отримано повідомлення через WebSocket:', data);
+
                             // Встановлюємо правильне значення is_mine
                             data.message.is_mine = data.message.sender_id === this.userId;
-                            
-                            // Додаємо повідомлення, якщо воно не наше або це наше повідомлення через інший пристрій
-                            if (!data.message.is_mine || data.message.sender_id === this.userId) {
-                                // Додаємо повідомлення, якщо його ще немає в списку
-                                if (!this.messages.some(m => m.id === data.message.id)) {
-                                    this.messages.push(data.message);
 
-                                    // Обробка нового повідомлення
-                                    // Якщо вікно активне, одразу позначаємо як прочитане
-                                    if (document.visibilityState === 'visible') {
-                                        this.$nextTick(() => {
-                                            this.markMessagesAsRead();
-                                        });
-                                    } else if (!data.message.is_mine) {
-                                        this.unreadMessages.push(data.message.id);
+                            // Додаємо повідомлення, якщо його ще немає в списку
+                            if (!this.messages.some(m => m.id === data.message.id)) {
+                                this.messages.push(data.message);
+                                console.log('Додано нове повідомлення:', data.message);
 
-                                        // Додаємо обробник для позначення повідомлень як прочитаних при поверненні на вкладку
-                                        const markReadOnFocus = () => {
+                                // Прокручуємо до низу
+                                this.$nextTick(() => {
+                                    this.scrollToBottom();
+                                });
+
+                                // Обробка нового повідомлення
+                                // Якщо це не наше повідомлення і вікно активне, одразу позначаємо як прочитане
+                                if (!data.message.is_mine && document.visibilityState === 'visible') {
+                                    this.$nextTick(() => {
+                                        this.markMessagesAsRead();
+                                    });
+                                } else if (!data.message.is_mine) {
+                                    // Якщо вікно неактивне, додаємо до списку непрочитаних
+                                    this.unreadMessages.push(data.message.id);
+
+                                    // Додаємо обробник для позначення повідомлень як прочитаних при поверненні на вкладку
+                                    const markReadOnFocus = () => {
+                                        this.markMessagesAsRead();
+                                        window.removeEventListener('focus', markReadOnFocus);
+                                        document.removeEventListener('visibilitychange', visibilityChangeHandler);
+                                    };
+
+                                    const visibilityChangeHandler = () => {
+                                        if (document.visibilityState === 'visible') {
                                             this.markMessagesAsRead();
                                             window.removeEventListener('focus', markReadOnFocus);
                                             document.removeEventListener('visibilitychange', visibilityChangeHandler);
-                                        };
+                                        }
+                                    };
 
-                                        const visibilityChangeHandler = () => {
-                                            if (document.visibilityState === 'visible') {
-                                                this.markMessagesAsRead();
-                                                window.removeEventListener('focus', markReadOnFocus);
-                                                document.removeEventListener('visibilitychange', visibilityChangeHandler);
-                                            }
-                                        };
-
-                                        window.addEventListener('focus', markReadOnFocus);
-                                        document.addEventListener('visibilitychange', visibilityChangeHandler);
-                                    }
+                                    window.addEventListener('focus', markReadOnFocus);
+                                    document.addEventListener('visibilitychange', visibilityChangeHandler);
                                 }
+                            } else {
+                                console.log('Повідомлення вже існує в списку:', data.message.id);
                             }
+                        })
+                        .listen('.messages.read', (data) => {
+                            console.log('Отримано оновлення статусу прочитання:', data);
+
+                            // Оновлюємо статус прочитання для повідомлень
+                            if (data.message_ids && data.user_id !== this.userId) {
+                                this.messages.forEach(msg => {
+                                    if (data.message_ids.includes(msg.id) && msg.sender_id === this.userId) {
+                                        msg.is_read = true;
+                                        console.log(`Повідомлення ${msg.id} позначено як прочитане`);
+                                    }
+                                });
+                            }
+                        })
+                        .error((error) => {
+                            console.error('Помилка WebSocket з\'єднання:', error);
                         });
                 },
 
@@ -320,6 +554,24 @@
 
                     // Перевіряємо, чи це повідомлення є останнім від користувача
                     return lastUserMessage.id === messageId;
+                },
+
+                // Fallback метод для polling, якщо WebSocket не працює
+                startPolling() {
+                    console.log('Запуск polling режиму для оновлення повідомлень');
+
+                    // Перевіряємо нові повідомлення кожні 3 секунди
+                    this.pollingInterval = setInterval(() => {
+                        this.fetchMessages();
+                    }, 3000);
+                },
+
+                // Зупинка polling
+                stopPolling() {
+                    if (this.pollingInterval) {
+                        clearInterval(this.pollingInterval);
+                        this.pollingInterval = null;
+                    }
                 }
             };
         }

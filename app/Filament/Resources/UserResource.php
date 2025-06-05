@@ -34,12 +34,6 @@ class UserResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Основна інформація')
                     ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->label('Логін')
-                            ->required()
-                            ->maxLength(32)
-                            ->unique(ignoreRecord: true),
-
                         Forms\Components\TextInput::make('email')
                             ->label('Email')
                             ->email()
@@ -113,10 +107,11 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Логін')
-                    ->searchable()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('full_name')
+                    ->label('Повне ім\'я')
+                    ->searchable(['first_name', 'last_name', 'middle_name'])
+                    ->sortable(['last_name', 'first_name'])
+                    ->getStateUsing(fn ($record) => $record->full_name),
 
                 Tables\Columns\TextColumn::make('email')
                     ->label('Email')
@@ -200,7 +195,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\RolesRelationManager::class,
+            //
         ];
     }
 

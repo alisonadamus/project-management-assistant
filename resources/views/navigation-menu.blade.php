@@ -13,12 +13,11 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                        {{ __('Головна') }}
                     </x-nav-link>
 
                     <!-- Події Dropdown -->
-                    <div class="relative">
-                        <x-dropdown align="left" width="48">
+                    <x-dropdown align="left" width="48">
                             <x-slot name="trigger">
                                 <x-nav-link href="#" :active="request()->routeIs('events.*')" class="inline-flex items-center">
                                     <div>{{ __('Події') }}</div>
@@ -45,11 +44,9 @@
                                 </x-dropdown-link>
                             </x-slot>
                         </x-dropdown>
-                    </div>
 
                     <!-- Проекти Dropdown -->
-                    <div class="relative">
-                        <x-dropdown align="left" width="48">
+                    <x-dropdown align="left" width="48">
                             <x-slot name="trigger">
                                 <x-nav-link href="#" :active="request()->routeIs('projects.*')" class="inline-flex items-center">
                                     <div>{{ __('Проекти') }}</div>
@@ -70,11 +67,9 @@
                                 </x-dropdown-link>
                             </x-slot>
                         </x-dropdown>
-                    </div>
 
                     <!-- Матеріали Dropdown -->
-                    <div class="relative">
-                        <x-dropdown align="left" width="48">
+                    <x-dropdown align="left" width="48">
                             <x-slot name="trigger">
                                 <x-nav-link href="#" :active="request()->routeIs('categories.*') || request()->routeIs('subjects.*') || request()->routeIs('technologies.*')" class="inline-flex items-center">
                                     <div>{{ __('Матеріали') }}</div>
@@ -98,7 +93,6 @@
                                 </x-dropdown-link>
                             </x-slot>
                         </x-dropdown>
-                    </div>
                 </div>
             </div>
 
@@ -189,12 +183,12 @@
                         <x-slot name="trigger">
                             @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
                                 <button class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
-                                    <img class="size-8 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
+                                    <img class="size-8 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->full_name }}" />
                                 </button>
                             @else
                                 <span class="inline-flex rounded-md">
                                     <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                        {{ Auth::user()->name }}
+                                        {{ Auth::user()->full_name }}
 
                                         <svg class="ms-2 -me-0.5 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -207,16 +201,22 @@
                         <x-slot name="content">
                             <!-- Account Management -->
                             <div class="block px-4 py-2 text-xs text-gray-400">
-                                {{ __('Manage Account') }}
+                                {{ __('Управління акаунтом') }}
                             </div>
 
                             <x-dropdown-link href="{{ route('profile.show') }}">
-                                {{ __('Profile') }}
+                                {{ __('Профіль') }}
                             </x-dropdown-link>
 
                             @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
                                 <x-dropdown-link href="{{ route('api-tokens.index') }}">
-                                    {{ __('API Tokens') }}
+                                    {{ __('API Токени') }}
+                                </x-dropdown-link>
+                            @endif
+
+                            @if (auth()->user()->hasRole('admin'))
+                                <x-dropdown-link href="/admin">
+                                    {{ __('Адмін панель') }}
                                 </x-dropdown-link>
                             @endif
 
@@ -228,7 +228,7 @@
 
                                 <x-dropdown-link href="{{ route('logout') }}"
                                          @click.prevent="$root.submit();">
-                                    {{ __('Log Out') }}
+                                    {{ __('Вийти') }}
                                 </x-dropdown-link>
                             </form>
                         </x-slot>
@@ -252,7 +252,7 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
+                {{ __('Головна') }}
             </x-responsive-nav-link>
 
             <!-- Події розділ -->
@@ -330,12 +330,12 @@
             <div class="flex items-center px-4">
                 @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
                     <div class="shrink-0 me-3">
-                        <img class="size-10 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
+                        <img class="size-10 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->full_name }}" />
                     </div>
                 @endif
 
                 <div>
-                    <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
+                    <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->full_name }}</div>
                     <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
                 </div>
             </div>
@@ -359,12 +359,18 @@
 
                 <!-- Account Management -->
                 <x-responsive-nav-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')">
-                    {{ __('Profile') }}
+                    {{ __('Профіль') }}
                 </x-responsive-nav-link>
+
+                @if (auth()->user()->hasRole('admin'))
+                    <x-responsive-nav-link href="/admin">
+                        {{ __('Адмін панель') }}
+                    </x-responsive-nav-link>
+                @endif
 
                 @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
                     <x-responsive-nav-link href="{{ route('api-tokens.index') }}" :active="request()->routeIs('api-tokens.index')">
-                        {{ __('API Tokens') }}
+                        {{ __('API Токени') }}
                     </x-responsive-nav-link>
                 @endif
 
@@ -374,7 +380,7 @@
 
                     <x-responsive-nav-link href="{{ route('logout') }}"
                                    @click.prevent="$root.submit();">
-                        {{ __('Log Out') }}
+                        {{ __('Вийти') }}
                     </x-responsive-nav-link>
                 </form>
 

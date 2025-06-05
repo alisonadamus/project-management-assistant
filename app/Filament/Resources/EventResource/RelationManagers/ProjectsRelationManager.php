@@ -40,13 +40,14 @@ class ProjectsRelationManager extends RelationManager
                 Forms\Components\Select::make('supervisor_id')
                     ->label('Керівник')
                     ->relationship('supervisor', 'id')
-                    ->getOptionLabelFromRecordUsing(fn (Supervisor $record) => $record->user->name)
+                    ->getOptionLabelFromRecordUsing(fn (Supervisor $record) => $record->user->full_name)
                     ->searchable()
                     ->preload(),
 
                 Forms\Components\Select::make('assigned_to')
                     ->label('Призначено')
-                    ->relationship('assignedTo', 'name')
+                    ->relationship('assignedTo', 'id')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->full_name)
                     ->searchable()
                     ->preload(),
 
@@ -54,7 +55,7 @@ class ProjectsRelationManager extends RelationManager
                     ->label('Додаток')
                     ->maxLength(512),
 
-                Forms\Components\Textarea::make('body')
+                Forms\Components\MarkdownEditor::make('body')
                     ->label('Опис')
                     ->maxLength(65535),
 
@@ -82,15 +83,15 @@ class ProjectsRelationManager extends RelationManager
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('supervisor.user.name')
+                Tables\Columns\TextColumn::make('supervisor.user.full_name')
                     ->label('Керівник')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->getStateUsing(fn ($record) => $record->supervisor?->user?->full_name),
 
-                Tables\Columns\TextColumn::make('assignedTo.name')
+                Tables\Columns\TextColumn::make('assignedTo.full_name')
                     ->label('Призначено')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->getStateUsing(fn ($record) => $record->assignedTo?->full_name),
 
                 Tables\Columns\TextColumn::make('technologies.name')
                     ->label('Технології')
@@ -100,13 +101,15 @@ class ProjectsRelationManager extends RelationManager
             ->filters([
                 Tables\Filters\SelectFilter::make('supervisor')
                     ->label('Керівник')
-                    ->relationship('supervisor.user', 'name')
+                    ->relationship('supervisor.user', 'id')
+                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->full_name)
                     ->searchable()
                     ->preload(),
 
                 Tables\Filters\SelectFilter::make('assigned_to')
                     ->label('Призначено')
-                    ->relationship('assignedTo', 'name')
+                    ->relationship('assignedTo', 'id')
+                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->full_name)
                     ->searchable()
                     ->preload(),
 

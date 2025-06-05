@@ -58,7 +58,7 @@ class EventResource extends Resource
 
                 Forms\Components\Section::make('Додаткова інформація')
                     ->schema([
-                        Forms\Components\Textarea::make('description')
+                        Forms\Components\MarkdownEditor::make('description')
                             ->label('Опис')
                             ->maxLength(512)
                             ->columnSpanFull(),
@@ -190,6 +190,7 @@ class EventResource extends Resource
         return [
             RelationManagers\ProjectsRelationManager::class,
             RelationManagers\SupervisorsRelationManager::class,
+            RelationManagers\SubeventsRelationManager::class,
         ];
     }
 

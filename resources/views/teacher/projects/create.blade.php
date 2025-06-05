@@ -18,7 +18,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg page-container-gradient">
                 <div class="p-6">
                     <form action="{{ route('teacher.projects.store', $event) }}" method="POST">
                         @csrf
@@ -38,7 +38,12 @@
 
                         <div class="mb-6">
                             <x-label for="body" value="{{ __('Опис проекту') }}" />
-                            <textarea id="body" name="body" rows="6" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 dark:focus:border-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 textarea-gradient">{{ old('body') }}</textarea>
+                            <x-markdown-editor
+                                name="body"
+                                :value="old('body')"
+                                placeholder="Введіть опис проекту (підтримується Markdown)"
+                                id="project-body-editor"
+                            />
                             @error('body')
                                 <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
                             @enderror

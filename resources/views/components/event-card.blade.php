@@ -1,6 +1,6 @@
 @props(['event'])
 
-<div class="bg-white dark:bg-gray-800 overflow-hidden shadow-md rounded-lg hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
+<div class="bg-white dark:bg-gray-800 overflow-hidden shadow-md rounded-lg hover:shadow-lg transition-shadow duration-300 flex flex-col h-full card-border-gradient">
     @if($event->image_url)
         <div class="relative h-48 overflow-hidden">
             <img src="{{ $event->image_url }}" alt="{{ $event->name }}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('storage/events/' . basename($event->image)) }}';">
@@ -55,7 +55,7 @@
     </div>
     
     <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-right">
-        <a href="{{ route('events.show', $event) }}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-200 active:bg-indigo-700 transition ease-in-out duration-150">
+        <a href="{{ route('events.show', $event) }}" class="inline-flex items-center px-4 py-2 btn-gradient border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150">
             Детальніше
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />

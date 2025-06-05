@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Project extends Model
 {
@@ -95,6 +96,109 @@ class Project extends Model
         return $query->whereNull('assigned_to');
     }
 
+    public function scopeByTechnology(Builder $query, string|int $technologyId): Builder
+    {
+        return $query->whereHas('technologies', function ($q) use ($technologyId) {
+            $q->where('technologies.id', $technologyId);
+        });
+    }
 
+    public function scopeSearchByNameOrBody(Builder $query, string $search): Builder
+    {
+        return $query->where(function($q) use ($search) {
+            $q->where('name', 'ILIKE', "%$search%")
+              ->orWhere('body', 'ILIKE', "%$search%");
+        });
+    }
 
+    public function scopeByStatus(Builder $query, string $status): Builder
+    {
+        if ($status === 'assigned') {
+            return $query->whereNotNull('assigned_to');
+        } elseif ($status === 'unassigned') {
+            return $query->whereNull('assigned_to');
+        }
+
+        return $query;
+    }
+
+    public function scopeOrderByName(Builder $query, string $direction = 'asc'): Builder
+    {
+        return $query->orderBy('name', $direction);
+    }
+
+    public function scopeOrderByCreated(Builder $query, string $direction = 'desc'): Builder
+    {
+        return $query->orderBy('created_at', $direction);
+    }
+
+    /**
+     * Отримати HTML версію опису проекту
+     */
+    protected function bodyHtml(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (empty($this->body)) {
+                    return '';
+                }
+
+                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                return $markdownService->toHtml($this->body);
+            }
+        );
+    }
+
+    /**
+     * Отримати попередній перегляд опису проекту
+     */
+    protected function bodyPreview(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (empty($this->body)) {
+                    return '';
+                }
+
+                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                return $markdownService->getPreview($this->body);
+            }
+        );
+    }
+
+    /**
+     * Отримати кількість непрочитаних повідомлень для поточного користувача
+     */
+    public function getUnreadMessagesCountAttribute(): int
+    {
+        $currentUserId = auth()->id();
+        if (!$currentUserId) {
+            return 0;
+        }
+
+        return $this->messages()
+            ->where('sender_id', '!=', $currentUserId)
+            ->where('is_read', false)
+            ->count();
+    }
+
+    /**
+     * Перевірити, чи є непрочитані повідомлення для поточного користувача
+     */
+    public function getHasUnreadMessagesAttribute(): bool
+    {
+        return $this->getUnreadMessagesCountAttribute() > 0;
+    }
+
+    /**
+     * Отримати кількість проектів в події
+     */
+    public function getEventProjectsCountAttribute(): int
+    {
+        if (!$this->event) {
+            return 0;
+        }
+
+        return $this->event->projects()->count();
+    }
 }

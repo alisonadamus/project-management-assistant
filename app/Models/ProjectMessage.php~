@@ -1,0 +1,10 @@
+<?php
+
+namespace Alison\ProjectManagementAssistant\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class ProjectMessage extends Model
+{
+    //
+}

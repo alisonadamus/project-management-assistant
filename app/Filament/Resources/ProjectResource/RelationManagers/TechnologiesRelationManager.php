@@ -39,7 +39,7 @@ class TechnologiesRelationManager extends RelationManager
                     ->url()
                     ->maxLength(2048),
 
-                Forms\Components\Textarea::make('description')
+                Forms\Components\MarkdownEditor::make('description')
                     ->label('Опис')
                     ->maxLength(65535),
             ]);

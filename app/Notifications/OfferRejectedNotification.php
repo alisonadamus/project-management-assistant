@@ -20,14 +20,23 @@ class OfferRejectedNotification extends Notification implements ShouldQueue
     public $project;
 
     /**
+     * Причина відхилення заявки
+     *
+     * @var string
+     */
+    public $reason;
+
+    /**
      * Create a new notification instance.
      *
      * @param Project $project
+     * @param string $reason
      * @return void
      */
-    public function __construct(Project $project)
+    public function __construct(Project $project, string $reason = 'manual')
     {
         $this->project = $project;
+        $this->reason = $reason;
     }
 
     /**
@@ -49,13 +58,31 @@ class OfferRejectedNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
+        $reasonText = $this->getReasonText();
+
         return (new MailMessage)
-            ->subject('Відхилено заявку на участь у проекті')
-            ->greeting('Шановний(а) ' . $notifiable->name . ',')
+            ->subject('Відхилено заявку на участь у проекті - ' . $this->project->name)
+            ->greeting('Шановний(а) ' . $notifiable->full_name . ',')
             ->line('На жаль, вашу заявку на участь у проекті **' . $this->project->name . '** було відхилено.')
-            ->line('**Керівник проекту:** ' . $this->project->supervisor->user->name)
-            ->action('Переглянути інші проекти', route('projects.index'))
+            ->line('**Причина:** ' . $reasonText)
+            ->line('**Керівник проекту:** ' . $this->project->supervisor->user->full_name)
+            ->line('**Подія:** ' . $this->project->event->name)
+            ->action('Переглянути інші проекти', route('events.show', $this->project->event))
             ->line('Дякуємо за інтерес до нашої платформи!');
+    }
+
+    /**
+     * Отримання тексту причини відхилення
+     */
+    private function getReasonText(): string
+    {
+        return match($this->reason) {
+            'manual' => 'Заявку відхилено науковим керівником',
+            'other_student_approved' => 'На цей проект було призначено іншого студента',
+            'student_assigned_elsewhere' => 'Ви були призначені до іншого проекту в цій події',
+            'supervisor_slots_full' => 'У наукового керівника закінчилися вільні місця',
+            default => 'Заявку відхилено'
+        };
     }
 
     /**
@@ -70,6 +97,10 @@ class OfferRejectedNotification extends Notification implements ShouldQueue
             'project_id' => $this->project->id,
             'project_name' => $this->project->name,
             'supervisor_name' => $this->project->supervisor->user->name,
+            'event_name' => $this->project->event->name,
+            'reason' => $this->reason,
+            'reason_text' => $this->getReasonText(),
+            'type' => 'offer_rejected',
         ];
     }
 }

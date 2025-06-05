@@ -35,7 +35,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg page-container-gradient">
                 <!-- Заголовок технології -->
                 <div class="relative">
                     @if($technology->image)
@@ -73,11 +73,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="md:col-span-2">
                             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Опис</h2>
-                            <div class="prose dark:prose-invert max-w-none">
-                                <p class="text-gray-600 dark:text-gray-300">
-                                    {{ $technology->description ?? 'Опис відсутній' }}
-                                </p>
-                            </div>
+                            @if($technology->description)
+                                <x-markdown :content="$technology->description" />
+                            @else
+                                <p class="text-gray-600 dark:text-gray-300">Опис відсутній</p>
+                            @endif
                         </div>
 
                         <div>

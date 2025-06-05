@@ -23,7 +23,8 @@ class SupervisorsRelationManager extends RelationManager
             ->schema([
                 Forms\Components\Select::make('user_id')
                     ->label('Користувач')
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'id')
+                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->full_name)
                     ->required()
                     ->searchable()
                     ->preload(),
@@ -43,12 +44,12 @@ class SupervisorsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('user.name')
+            ->recordTitleAttribute('user.full_name')
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('user.full_name')
                     ->label('Користувач')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->getStateUsing(fn ($record) => $record->user?->full_name),
 
                 Tables\Columns\TextColumn::make('slot_count')
                     ->label('Кількість місць')
@@ -66,7 +67,8 @@ class SupervisorsRelationManager extends RelationManager
             ->filters([
                 Tables\Filters\SelectFilter::make('user')
                     ->label('Користувач')
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'id')
+                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->full_name)
                     ->searchable()
                     ->preload(),
 
