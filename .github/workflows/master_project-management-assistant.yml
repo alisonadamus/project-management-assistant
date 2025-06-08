@@ -44,9 +44,13 @@ jobs:
       - name: Run composer install if composer.json exists
         if: steps.check_files.outputs.files_exists == 'true'
         run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
-      
-      - name: Clear Laravel Config Cache
-        run: php artisan config:clear
+
+      - name: Clear Laravel Cache
+        run: |
+          php artisan config:clear
+          php artisan route:clear
+          php artisan view:clear
+          php artisan cache:clear
 
       - name: Prepare deployment package with public/ as root
         run: |
