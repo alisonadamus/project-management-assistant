@@ -21,7 +21,7 @@ jobs:
       - name: Create .env file
         run: |
           cat <<EOF > .env
-
+          APP_NAME=${{ secrets.APP_NAME }}
           CACHE_STORE=file
           DB_CONNECTION=pgsql
           DB_HOST=${{ secrets.DB_HOST }}
@@ -29,7 +29,6 @@ jobs:
           DB_DATABASE=${{ secrets.DB_DATABASE }}
           DB_USERNAME=${{ secrets.DB_USERNAME }}
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          APP_NAME=${{ secrets.APP_NAME }}
           EOF
   
       - name: Setup PHP
