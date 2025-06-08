@@ -31,9 +31,6 @@ jobs:
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           APP_NAME=${{ secrets.APP_NAME }}
           EOF
-
-      - name: Generate Laravel APP_KEY
-        run: php artisan key:generate
   
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -50,12 +47,23 @@ jobs:
         if: steps.check_files.outputs.files_exists == 'true'
         run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
 
+      - name: Generate Laravel APP_KEY
+        run: php artisan key:generate
+
       - name: Clear Laravel Cache
         run: |
           php artisan config:clear
           php artisan route:clear
           php artisan view:clear
           php artisan cache:clear
+
+      - name: Run migrations
+        run: php artisan migrate --force
+      - name: Optimize Laravel
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
