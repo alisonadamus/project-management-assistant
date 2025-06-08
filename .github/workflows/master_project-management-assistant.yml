@@ -30,9 +30,11 @@ jobs:
           DB_USERNAME=${{ secrets.DB_USERNAME }}
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           APP_NAME=${{ secrets.APP_NAME }}
-          APP_KEY=${{ secrets.APP_KEY }}
           EOF
 
+      - name: Generate Laravel APP_KEY
+        run: php artisan key:generate
+  
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
