@@ -18,19 +18,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create .env file
-        run: |
-          cat <<EOF > .env
-          APP_NAME=${{ secrets.APP_NAME }}
-          APP_KEY=${{ secrets.APP_KEY }}
-          CACHE_STORE=file
-          DB_CONNECTION=pgsql
-          DB_HOST=${{ secrets.DB_HOST }}
-          DB_PORT=5432
-          DB_DATABASE=${{ secrets.DB_DATABASE }}
-          DB_USERNAME=${{ secrets.DB_USERNAME }}
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          EOF
+      # - name: Create .env file
+      #   run: |
+      #     cat <<EOF > .env
+      #     APP_NAME=${{ secrets.APP_NAME }}
+      #     APP_KEY=${{ secrets.APP_KEY }}
+      #     CACHE_STORE=file
+      #     DB_CONNECTION=pgsql
+      #     DB_HOST=${{ secrets.DB_HOST }}
+      #     DB_PORT=5432
+      #     DB_DATABASE=${{ secrets.DB_DATABASE }}
+      #     DB_USERNAME=${{ secrets.DB_USERNAME }}
+      #     DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+      #     EOF
   
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -47,12 +47,31 @@ jobs:
         if: steps.check_files.outputs.files_exists == 'true'
         run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
 
-      - name: Clear Laravel Cache
+      # - name: Clear Laravel Cache
+      #   run: |
+      #     php artisan config:clear
+      #     php artisan route:clear
+      #     php artisan view:clear
+      #     php artisan cache:clear
+      - name: Generate .env file
         run: |
-          php artisan config:clear
-          php artisan route:clear
-          php artisan view:clear
-          php artisan cache:clear
+          cp .env.example .env
+
+          # Оновлюємо значення для продакшн
+          sed -i 's/APP_ENV=.*/APP_ENV=production/' .env
+          sed -i 's/APP_DEBUG=.*/APP_DEBUG=false/' .env
+          sed -i 's#APP_KEY=.*#APP_KEY=${{ secrets.APP_KEY }}#' .env
+
+          # Налаштування бази даних
+          sed -i 's/DB_HOST=.*/DB_HOST=${{ secrets.DB_HOST }}/' .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=${{ secrets.DB_DATABASE }}/' .env
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=${{ secrets.DB_USERNAME }}/' .env
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=${{ secrets.DB_PASSWORD }}/' .env
+
+          # Генеруємо ключ та кешуємо конфігурацію
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
