@@ -90,11 +90,6 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-
-      - name: Copy custom nginx configuration
-        run: |
-          mkdir -p /home/site/config
-          cp config/nginx-custom.conf /home/site/config/nginx-custom.conf
       
       - name: Login to Azure
         uses: azure/login@v2
