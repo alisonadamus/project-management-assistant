@@ -57,8 +57,6 @@ jobs:
           php artisan view:clear
           php artisan cache:clear
 
-      - name: Run migrations
-        run: php artisan migrate --force
       - name: Optimize Laravel
         run: |
           php artisan config:cache
