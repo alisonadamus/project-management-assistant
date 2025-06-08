@@ -31,6 +31,7 @@ jobs:
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           APP_NAME=${{ secrets.APP_NAME }}
           APP_KEY=${{ secrets.APP_KEY }}
+          EOF
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
