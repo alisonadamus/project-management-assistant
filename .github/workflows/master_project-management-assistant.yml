@@ -47,15 +47,15 @@ jobs:
         if: steps.check_files.outputs.files_exists == 'true'
         run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
 
-      - name: Generate Laravel APP_KEY
-        run: php artisan key:generate
-
       - name: Clear Laravel Cache
         run: |
           php artisan config:clear
           php artisan route:clear
           php artisan view:clear
           php artisan cache:clear
+
+      - name: Generate Laravel APP_KEY
+        run: php artisan key:generate
 
       - name: Optimize Laravel
         run: |
