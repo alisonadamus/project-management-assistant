@@ -48,8 +48,14 @@ jobs:
       - name: Clear Laravel Config Cache
         run: php artisan config:clear
 
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+      - name: Prepare deployment package with public/ as root
+        run: |
+          mkdir deploy
+          cp -r public/* deploy/
+          cp -r app bootstrap config database resources routes storage vendor deploy/
+          cp artisan .env deploy/
+          cd deploy
+          zip -r ../release.zip .
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
