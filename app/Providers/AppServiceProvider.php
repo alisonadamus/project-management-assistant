@@ -25,5 +25,6 @@ class AppServiceProvider extends ServiceProvider
     {
         // Використовувати Tailwind CSS для пагінації
         Paginator::useTailwind();
+        URL::forceScheme('https');
     }
 }
